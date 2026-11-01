@@ -365,6 +365,14 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .dados-box textarea:focus{outline:none;border-color:var(--accent);box-shadow:var(--glow);}
 .dados-nota{font-size:0.68rem;color:var(--warn);margin-top:8px;line-height:1.5;}
 @media (max-width:480px){.container{padding-left:16px;padding-right:16px;}}
+
+.chart-anot{margin-top:14px;border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);}
+.chart-anot-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:2px;color:#a855f7;margin-bottom:8px;}
+.chart-anot-status{font-size:0.75rem;color:var(--text-dim);margin:6px 0;}
+.chart-anot img{display:block;width:100%;height:auto;margin-top:6px;border-radius:4px;}
+.chart-anot-legenda{list-style:none;display:grid;gap:4px;margin:10px 0 0;font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--text);}
+.chart-anot-legenda li{display:flex;gap:8px;align-items:baseline;}
+.chart-anot-legenda .cor{width:10px;height:10px;border-radius:2px;flex:none;transform:translateY(1px);}
 </style>
 <div class="container">
 
@@ -1089,6 +1097,16 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <button class="chart-clear" onclick="limparGrafico()">✕ limpar</button>
     </div>
     <div class="chart-analysis-box" id="chartAnalysis"></div>
+    <div class="chart-anot" id="chartAnot" hidden>
+      <div class="chart-anot-head">
+        <span>🖊️ GRÁFICO ANOTADO PELA IA</span>
+        <button class="chart-clear" id="btnBaixarAnot" type="button" hidden>⬇ salvar imagem</button>
+      </div>
+      <div class="chart-anot-status" id="chartAnotStatus">Desenhando as marcações no seu gráfico...</div>
+      <img id="chartAnotImg" alt="Gráfico com as marcações da IA" hidden>
+      <ul class="chart-anot-legenda" id="chartLegenda"></ul>
+      <div class="dados-nota">As posições vêm da leitura do eixo de preços do print e são aproximadas. Vale o preço escrito em cada etiqueta. Não é recomendação de investimento.</div>
+    </div>
     <div class="fonte-bar" style="margin-top:10px">
       <span class="fonte-label">análise via</span>
       <span class="fonte-tag ict">ICT Smart Money</span>
@@ -1814,6 +1832,231 @@ function showToast(msg, type) {
 // INIT
 calcGarantia();
 
+// ─── GRÁFICO ANOTADO PELA IA ───
+const ANOT_CORES = {
+  compra: '#00ff88', venda: '#ff3860', neutro: '#ffb800',
+  FVG: '#a855f7', ORB: '#00d4ff', LIQUIDEZ: '#ffb800',
+  entrada: '#00d4ff', stop: '#ff3860', alvo: '#00ff88',
+  suporte: '#00ff88', resistencia: '#ff3860', vwap: '#ffb800',
+  orb_max: '#00d4ff', orb_min: '#00d4ff'
+};
+
+function anotNum(v) {
+  if (typeof v === 'number') return isFinite(v) ? v : null;
+  if (typeof v !== 'string') return null;
+  let s = v.replace(/[^\d.,-]/g, '');
+  if (!s) return null;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+  const n = parseFloat(s);
+  return isFinite(n) ? n : null;
+}
+
+function anotFmt(n) {
+  if (n == null) return '—';
+  const dec = Math.abs(n) < 100 ? 2 : (Number.isInteger(n) ? 0 : 1);
+  return n.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+
+function anotCarregarImagem(file) {
+  return new Promise((ok, falha) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => ok({ img, url });
+    img.onerror = () => { URL.revokeObjectURL(url); falha({ code: 'image_rejected' }); };
+    img.src = url;
+  });
+}
+
+function anotEtiqueta(g, texto, xDir, y, cor, fs, H) {
+  g.font = '600 ' + fs + 'px "Share Tech Mono", monospace';
+  const pad = fs * 0.35, w = g.measureText(texto).width + pad * 2, h = fs * 1.35;
+  const yy = Math.min(Math.max(y - h / 2, 2), H - h - 2);
+  g.fillStyle = 'rgba(2,4,8,0.82)';
+  g.fillRect(xDir - w, yy, w, h);
+  g.strokeStyle = cor; g.lineWidth = Math.max(1, fs / 12);
+  g.strokeRect(xDir - w, yy, w, h);
+  g.fillStyle = cor; g.textBaseline = 'middle'; g.textAlign = 'left';
+  g.fillText(texto, xDir - w + pad, yy + h / 2);
+  return yy + h;
+}
+
+async function gerarGraficoAnotado(sample, ctx) {
+  const box = document.getElementById('chartAnot');
+  const status = document.getElementById('chartAnotStatus');
+  const imgOut = document.getElementById('chartAnotImg');
+  const legenda = document.getElementById('chartLegenda');
+  const btn = document.getElementById('btnBaixarAnot');
+  const arquivo = chartFile;
+  box.hidden = false; imgOut.hidden = true; btn.hidden = true; legenda.textContent = '';
+  status.style.color = '';
+  status.textContent = 'Desenhando as marcações no seu gráfico...';
+
+  const prompt = 'Você é o IA TRADER PRO (método MTC + ICT Smart Money + ORB, WIN/WDO na B3). '
+    + 'A imagem anexada é o print de um gráfico. Devolva APENAS um JSON com as marcações de operação que serão desenhadas sobre a própria imagem.\n\n'
+    + 'CALIBRAÇÃO DO EIXO (essencial): escolha duas etiquetas de preço legíveis no eixo vertical, uma perto do topo e outra perto da base. '
+    + 'Para cada uma informe o valor e a posição vertical do centro da etiqueta como fração da altura da imagem (0 = topo da imagem, 1 = base). '
+    + 'Informe também x_eixo: fração da largura onde começa a coluna do eixo de preços (1 se não houver eixo à direita).\n\n'
+    + 'Formato:\n'
+    + '{"ativo":"WIN","timeframe":"5m","vies":"COMPRA|VENDA|NEUTRO",'
+    + '"eixo":{"preco_topo":174000,"y_topo":0.08,"preco_base":172500,"y_base":0.86,"x_eixo":0.93},'
+    + '"zonas":[{"tipo":"FVG|OB|ORB|LIQUIDEZ|SR","lado":"compra|venda|neutro","rotulo":"FVG de alta","preco_de":172800,"preco_ate":173050,"x_de":0.55}],'
+    + '"linhas":[{"tipo":"entrada|stop|alvo|suporte|resistencia|vwap|orb_max|orb_min","rotulo":"Entrada compra","preco":173100}],'
+    + '"resumo":"uma frase com o plano"}\n\n'
+    + 'Regras: preços como números puros no padrão do eixo (173550 ou 5162.5), sem separador de milhar. '
+    + 'x_de (opcional) é a fração da largura onde a zona nasce (candle de origem). Até 6 zonas e 8 linhas. '
+    + 'Marque só o que for visível ou derivado do gráfico (FVG, Order Blocks, range de abertura/ORB, liquidez, S/R, VWAP). '
+    + 'Se houver setup válido, inclua entrada, stop e alvo(s) dele; se não houver, não inclua entrada/stop/alvo e diga no resumo.'
+    + (ctx ? '\n\nDados de mercado informados pelo trader:\n' + ctx : '');
+
+  let d;
+  try {
+    d = await sample.json(prompt, { images: [arquivo], cache: false });
+  } catch (e) {
+    status.textContent = '❌ Não foi possível gerar o gráfico anotado. ' + iaErroMsg(e);
+    status.style.color = 'var(--danger)';
+    return;
+  }
+  if (arquivo !== chartFile) return; // print trocado no meio do caminho
+
+  const ex = (d && d.eixo) || {};
+  const pT = anotNum(ex.preco_topo), pB = anotNum(ex.preco_base);
+  const yT = Number(ex.y_topo), yB = Number(ex.y_base);
+  if (pT == null || pB == null || pT === pB || !isFinite(yT) || !isFinite(yB) || Math.abs(yB - yT) < 0.05) {
+    status.textContent = '❌ A IA não conseguiu ler o eixo de preços deste print. Envie um print com a escala de preços visível à direita.';
+    status.style.color = 'var(--danger)';
+    return;
+  }
+  const yDe = preco => yT + (preco - pT) * (yB - yT) / (pB - pT);
+
+  let carregada;
+  try { carregada = await anotCarregarImagem(arquivo); }
+  catch (e) { status.textContent = '❌ ' + iaErroMsg(e); status.style.color = 'var(--danger)'; return; }
+  const { img, url } = carregada;
+  const esc = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
+  const W = Math.round(img.naturalWidth * esc), Hc = Math.round(img.naturalHeight * esc);
+  const topo = Math.round(Math.max(28, W / 32));
+  const H = Hc + topo;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#020408'; g.fillRect(0, 0, W, H);
+  g.drawImage(img, 0, topo, W, Hc);
+  URL.revokeObjectURL(url);
+
+  const fs = Math.max(11, Math.round(W / 85));
+  const xEixo = Math.min(1, Math.max(0.5, Number(ex.x_eixo) || 0.93)) * W;
+  const Y = preco => topo + yDe(preco) * Hc;
+  const visivel = y => y >= topo - 2 && y <= H + 2;
+  const itensLeg = [];
+  const fora = [];
+
+  // zonas
+  (Array.isArray(d.zonas) ? d.zonas : []).slice(0, 6).forEach(z => {
+    const a = anotNum(z.preco_de), b = anotNum(z.preco_ate);
+    if (a == null || b == null) return;
+    const tipo = String(z.tipo || '').toUpperCase();
+    const cor = ANOT_CORES[tipo] || ANOT_CORES[String(z.lado || '').toLowerCase()] || ANOT_CORES.neutro;
+    const rot = String(z.rotulo || tipo || 'Zona').slice(0, 40);
+    const y1 = Y(Math.max(a, b)), y2 = Y(Math.min(a, b));
+    itensLeg.push({ cor, txt: rot + '  ' + anotFmt(Math.min(a, b)) + ' – ' + anotFmt(Math.max(a, b)) });
+    if (!visivel(y1) && !visivel(y2)) { fora.push(rot); return; }
+    const xIni = Math.min(Math.max(Number(z.x_de) || 0, 0), 0.95) * W;
+    const yy1 = Math.max(y1, topo), yy2 = Math.min(Math.max(y2, yy1 + 2), H);
+    g.globalAlpha = 0.2; g.fillStyle = cor; g.fillRect(xIni, yy1, xEixo - xIni, yy2 - yy1);
+    g.globalAlpha = 0.9; g.strokeStyle = cor; g.lineWidth = Math.max(1, fs / 8);
+    g.setLineDash(tipo === 'LIQUIDEZ' ? [fs / 2, fs / 3] : []);
+    g.strokeRect(xIni, yy1, xEixo - xIni, yy2 - yy1);
+    g.setLineDash([]); g.globalAlpha = 1;
+    g.font = '700 ' + fs + 'px "Share Tech Mono", monospace';
+    g.fillStyle = cor; g.textBaseline = 'top'; g.textAlign = 'left';
+    g.fillText(rot, xIni + fs * 0.4, yy1 + fs * 0.25);
+  });
+
+  // linhas
+  const linhas = (Array.isArray(d.linhas) ? d.linhas : []).slice(0, 8)
+    .map(l => ({ ...l, p: anotNum(l.preco), tipo: String(l.tipo || '').toLowerCase() }))
+    .filter(l => l.p != null)
+    .sort((a, b) => b.p - a.p);
+  let ultimoFim = -Infinity;
+  linhas.forEach(l => {
+    const cor = ANOT_CORES[l.tipo] || ANOT_CORES.neutro;
+    const rot = String(l.rotulo || l.tipo || 'Nível').slice(0, 32);
+    itensLeg.push({ cor, txt: rot + '  ' + anotFmt(l.p) });
+    const y = Y(l.p);
+    if (!visivel(y)) { fora.push(rot); return; }
+    g.strokeStyle = cor; g.lineWidth = Math.max(1.5, fs / (l.tipo === 'entrada' ? 5 : 7));
+    g.setLineDash(['stop', 'alvo', 'vwap'].includes(l.tipo) ? [fs * 0.7, fs * 0.4] : []);
+    g.beginPath(); g.moveTo(0, y); g.lineTo(xEixo, y); g.stroke(); g.setLineDash([]);
+    const yEtiq = Math.max(y, ultimoFim + fs * 0.75);
+    ultimoFim = anotEtiqueta(g, rot + ' ' + anotFmt(l.p), xEixo - fs * 0.3, yEtiq, cor, fs, H);
+  });
+
+  // seta da entrada ao primeiro alvo
+  const ent = linhas.find(l => l.tipo === 'entrada');
+  if (ent) {
+    const alvos = linhas.filter(l => l.tipo === 'alvo');
+    const alvo = alvos.sort((a, b) => Math.abs(a.p - ent.p) - Math.abs(b.p - ent.p))[0];
+    if (alvo) {
+      const x = xEixo * 0.82, y0 = Y(ent.p), y1 = Y(alvo.p);
+      if (visivel(y0) && visivel(y1) && Math.abs(y1 - y0) > fs) {
+        const cor = alvo.p > ent.p ? ANOT_CORES.compra : ANOT_CORES.venda;
+        const s = Math.sign(y1 - y0), ponta = fs * 0.9;
+        g.strokeStyle = cor; g.fillStyle = cor; g.lineWidth = Math.max(2, fs / 4);
+        g.beginPath(); g.moveTo(x, y0); g.lineTo(x, y1 - s * ponta); g.stroke();
+        g.beginPath(); g.moveTo(x, y1); g.lineTo(x - ponta * 0.7, y1 - s * ponta); g.lineTo(x + ponta * 0.7, y1 - s * ponta); g.closePath(); g.fill();
+      }
+    }
+  }
+
+  // faixa de título
+  const vies = String(d.vies || 'NEUTRO').toUpperCase();
+  const corVies = vies.includes('COMPRA') ? ANOT_CORES.compra : vies.includes('VENDA') ? ANOT_CORES.venda : ANOT_CORES.neutro;
+  g.fillStyle = '#060d14'; g.fillRect(0, 0, W, topo);
+  g.font = '700 ' + Math.round(topo * 0.5) + 'px "Share Tech Mono", monospace';
+  g.textBaseline = 'middle'; g.textAlign = 'left'; g.fillStyle = '#00d4ff';
+  const cab = 'IA TRADER · ' + String(d.ativo || '').slice(0, 12) + ' ' + String(d.timeframe || '').slice(0, 8) + ' · ';
+  g.fillText(cab, topo * 0.3, topo / 2);
+  g.fillStyle = corVies;
+  g.fillText('VIÉS ' + vies.slice(0, 10), topo * 0.3 + g.measureText(cab).width, topo / 2);
+  g.textAlign = 'right'; g.fillStyle = '#4a6a80';
+  g.font = Math.round(topo * 0.38) + 'px "Share Tech Mono", monospace';
+  g.fillText(new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' · níveis aproximados', W - topo * 0.3, topo / 2);
+
+  if (!itensLeg.length) {
+    status.textContent = 'A IA não encontrou zonas ou níveis para marcar neste print.' + (d.resumo ? ' ' + String(d.resumo) : '');
+    return;
+  }
+
+  imgOut.src = cv.toDataURL('image/png');
+  imgOut.hidden = false;
+  status.textContent = (d.resumo ? String(d.resumo) : 'Marcações desenhadas.')
+    + (fora.length ? ' Fora da área visível do print: ' + fora.join(', ') + '.' : '');
+  itensLeg.forEach(it => {
+    const li = document.createElement('li');
+    const c = document.createElement('span'); c.className = 'cor'; c.style.background = it.cor;
+    const t = document.createElement('span'); t.textContent = it.txt;
+    li.append(c, t); legenda.append(li);
+  });
+
+  const downloads = (window.claude && typeof window.claude.use === 'function')
+    ? await window.claude.use('downloads').catch(() => null) : null;
+  if (downloads) {
+    btn.hidden = false;
+    btn.onclick = () => cv.toBlob(async blob => {
+      if (!blob) return;
+      try {
+        await downloads.save({ filename: 'ia-trader-grafico-anotado.png', data: blob });
+        showToast('✅ Imagem salva', 'success');
+      } catch (e) {
+        if (e && e.code === 'declined') return;
+        if (e && (e.code === 'unavailable' || e.code === 'not_granted')) btn.hidden = true;
+        showToast('Não foi possível salvar a imagem agora.', 'error');
+      }
+    }, 'image/png');
+  }
+}
+
 // ─── ANÁLISE DE GRÁFICO ───
 let chartImageBase64 = null;
 let chartFile = null;
@@ -1846,6 +2089,7 @@ function onChartSelected(event) {
 function limparGrafico() {
   chartImageBase64 = null;
   chartFile = null;
+  document.getElementById('chartAnot').hidden = true;
   document.getElementById('chartPreview').style.display = 'none';
   document.getElementById('chartPreview').src = '';
   document.getElementById('chartUploadBox').style.display = 'block';
@@ -1876,6 +2120,7 @@ async function analisarGrafico() {
     const prompt = systemChart + '\n\nA imagem anexada é o print de um gráfico enviado pelo trader. Analise este gráfico de trading completo usando o Método Trader Camaleão + ICT Smart Money. Identifique o ativo, timeframe, estrutura, S/R, setup e viés operacional. Responda em português, em texto simples (sem tabelas markdown). Leia os preços do eixo com cuidado e avise quando um nível for aproximado.'
       + (ctx ? '\n\nDados de mercado informados pelo trader:\n' + ctx : '');
     analysis.textContent = 'IA TRADER · Pensando...';
+    gerarGraficoAnotado(sample, ctx);
     await sample(prompt, {
       images: [chartFile],
       cache: false,
