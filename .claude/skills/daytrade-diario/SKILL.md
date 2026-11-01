@@ -1,0 +1,46 @@
+---
+name: daytrade-diario
+description: Registra operações de daytrade (WIN e WDO) no diário de trades do repositório, em diario/trades.csv, e lista ou corrige registros. Use quando o usuário disser "registra esse trade", "anota no diário", "entrei/saí em ...", "fiz X pontos", colar operações da corretora, ou pedir para ver ou editar trades anteriores.
+---
+
+# Diário de trades
+
+Arquivo: `diario/trades.csv`, na raiz do repositório. Se não existir, crie com o cabeçalho abaixo.
+
+```
+data,hora_entrada,hora_saida,ativo,lado,contratos,entrada,stop,alvo,saida,setup,seguiu_plano,emocao,notas
+```
+
+| Coluna | Formato | Exemplo |
+|---|---|---|
+| data | AAAA-MM-DD | 2026-11-03 |
+| hora_entrada, hora_saida | HH:MM | 09:34 |
+| ativo | WIN ou WDO | WIN |
+| lado | C (compra) ou V (venda) | C |
+| contratos | inteiro | 2 |
+| entrada, stop, alvo, saida | número com ponto decimal | 173550 ou 5162.5 |
+| setup | texto curto, sem vírgula | ORB, OB, FVG, VWAP, outro |
+| seguiu_plano | S ou N | S |
+| emocao | uma palavra | calmo, ansioso, revanche, euforico |
+| notas | texto sem vírgula (use ; se precisar) | saiu antes do alvo por medo |
+
+## Como registrar
+
+1. Extraia os campos da mensagem do usuário. Converta preços no formato brasileiro (`5.162,5`) para `5162.5`.
+2. Se faltarem **entrada, saída, ativo, lado ou contratos**, pergunte. Os outros campos podem ficar vazios, mas incentive preencher stop, setup e seguiu_plano, porque sem eles as estatísticas ficam pobres.
+3. Mostre o resultado calculado antes de gravar:
+   - pontos = (saida − entrada) para compra; (entrada − saida) para venda
+   - R$ bruto = pontos × valor_do_ponto × contratos (WIN 0,20; WDO 10,00)
+   - Múltiplo R = pontos / |entrada − stop| (se houver stop)
+4. Acrescente a linha ao CSV, sem reescrever as linhas existentes.
+5. Para vários trades colados de uma vez (ex.: extrato da corretora), monte todas as linhas e mostre uma tabela de confirmação antes de gravar.
+
+## Consultas e correções
+
+- "Trades de hoje / da semana": leia o CSV e mostre uma tabela com o resultado de cada trade e o total.
+- Para estatísticas completas, use a skill `daytrade-estatisticas`.
+- Correção: mostre a linha atual e a nova, e só então altere.
+
+## Versionamento
+
+Depois de gravar, pergunte se o usuário quer commitar o diário (`git add diario/trades.csv && git commit`). Não faça push sem ele pedir.
