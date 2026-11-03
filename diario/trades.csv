@@ -1,0 +1,17 @@
+data,hora_entrada,hora_saida,ativo,lado,contratos,entrada,stop,alvo,saida,setup,seguiu_plano,emocao,notas
+2026-11-03,09:30,09:30,WIN,V,10,167125,,,167125,,,,simulador WINZ26; zerado
+2026-11-03,09:30,09:31,WIN,V,10,167065,,,167065,,,,simulador WINZ26; zerado
+2026-11-03,09:31,09:31,WIN,V,10,167050,,,167125,,,,simulador WINZ26
+2026-11-03,09:32,09:32,WIN,V,10,167005,,,167200,,,,simulador WINZ26; maior perda do dia
+2026-11-03,09:33,09:35,WIN,V,10,167160,,,167145,,,,simulador WINZ26; preço médio
+2026-11-03,09:43,09:44,WIN,V,5,167145,,,167145,,,,simulador WINZ26; zerado
+2026-11-03,10:06,10:08,WIN,C,5,167381,,,167378,,,,simulador WINZ26
+2026-11-03,10:08,10:08,WIN,V,3,167330,,,167480,,,,simulador WINZ26; preço médio
+2026-11-03,10:08,10:11,WIN,C,5,167505,,,167610,,,,simulador WINZ26
+2026-11-03,10:12,10:13,WIN,C,5,167735,,,167735,,,,simulador WINZ26; zerado
+2026-11-03,10:15,10:17,WIN,C,10,167838.5,,,167773,,,,simulador WINZ26
+2026-11-03,10:23,10:24,WIN,C,1,167855,,,167455,,,,simulador WINZ26; perda de 400 pts (stop largo?)
+2026-11-03,10:29,10:40,WIN,V,5,168305,,,168185,,,,simulador WINZ26; preço médio
+2026-11-03,10:51,10:57,WIN,V,5,167530,,,167530,,,,simulador WINZ26; zerado
+2026-11-03,11:01,11:19,WIN,V,5,167230,,,166930,,,,simulador WINZ26; melhor trade do dia
+2026-11-03,11:19,11:21,WIN,V,5,166790,,,166980,,,,simulador WINZ26; entrou 28s após o trade de +300
