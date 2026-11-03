@@ -99,7 +99,7 @@ def main():
     final = sorted(outros + novos, key=lambda t: (t["data"], t["hora_entrada"]))
     os.makedirs(os.path.dirname(destino) or ".", exist_ok=True)
     with open(destino, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=CAMPOS, extrasaction="ignore")
+        w = csv.DictWriter(f, fieldnames=CAMPOS, extrasaction="ignore", lineterminator="\n")
         w.writeheader()
         w.writerows(final)
     print(f"{data}: {len(novos)} operações importadas ({atualizados} já existiam e mantiveram as anotações).")
