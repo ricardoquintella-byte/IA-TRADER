@@ -1,6 +1,6 @@
 ---
 name: daytrade-diario
-description: Registra operações de daytrade (WIN e WDO) no diário de trades do repositório, em diario/trades.csv, e lista ou corrige registros. Use quando o usuário disser "registra esse trade", "anota no diário", "entrei/saí em ...", "fiz X pontos", colar operações da corretora, ou pedir para ver ou editar trades anteriores.
+description: Registra operações de daytrade (WIN e WDO) no diário de trades do repositório, em diario/trades.csv, inclusive importando o relatório OperationReport.csv do Profit, e lista ou corrige registros. Use quando o usuário enviar o CSV ou print do relatório da corretora, o usuário disser "registra esse trade", "anota no diário", "entrei/saí em ...", "fiz X pontos", colar operações da corretora, ou pedir para ver ou editar trades anteriores.
 ---
 
 # Diário de trades
@@ -14,7 +14,7 @@ data,hora_entrada,hora_saida,ativo,lado,contratos,entrada,stop,alvo,saida,setup,
 | Coluna | Formato | Exemplo |
 |---|---|---|
 | data | AAAA-MM-DD | 2026-11-03 |
-| hora_entrada, hora_saida | HH:MM | 09:34 |
+| hora_entrada, hora_saida | HH:MM ou HH:MM:SS | 09:34 |
 | ativo | WIN ou WDO | WIN |
 | lado | C (compra) ou V (venda) | C |
 | contratos | inteiro | 2 |
@@ -24,7 +24,17 @@ data,hora_entrada,hora_saida,ativo,lado,contratos,entrada,stop,alvo,saida,setup,
 | emocao | uma palavra | calmo, ansioso, revanche, euforico |
 | notas | texto sem vírgula (use ; se precisar) | saiu antes do alvo por medo |
 
-## Como registrar
+## Importar o relatório do Profit (preferido)
+
+Se o usuário enviar o `OperationReport.csv` exportado do Profit (relatório de operações), não transcreva à mão:
+
+```
+python3 -I .claude/skills/daytrade-diario/importar_profit.py <caminho do OperationReport.csv> diario/trades.csv
+```
+
+O script lê a data do cabeçalho, converte lado e preços, ajusta arredondamentos para o resultado bater com a corretora e substitui as operações daquele dia mantendo as anotações manuais (stop, alvo, setup, seguiu_plano, emocao, notas). Depois confira o total bruto com o "Res. Total Intervalo" da última linha do relatório.
+
+## Como registrar à mão
 
 1. Extraia os campos da mensagem do usuário. Converta preços no formato brasileiro (`5.162,5`) para `5162.5`.
 2. Se faltarem **entrada, saída, ativo, lado ou contratos**, pergunte. Os outros campos podem ficar vazios, mas incentive preencher stop, setup e seguiu_plano, porque sem eles as estatísticas ficam pobres.
