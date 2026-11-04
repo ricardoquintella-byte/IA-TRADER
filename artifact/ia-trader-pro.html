@@ -366,6 +366,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .dados-nota{font-size:0.68rem;color:var(--warn);margin-top:8px;line-height:1.5;}
 @media (max-width:480px){.container{padding-left:16px;padding-right:16px;}}
 
+.snap-aviso{max-width:1100px;margin:0 auto 14px;padding:10px 14px;border:1px solid rgba(255,184,0,0.4);background:rgba(255,184,0,0.07);border-radius:6px;font-size:0.75rem;line-height:1.6;color:var(--text);}
+.snap-aviso span{color:var(--text-dim);}
 .chart-anot{margin-top:14px;border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);}
 .chart-anot-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:2px;color:#a855f7;margin-bottom:8px;}
 .chart-anot-status{font-size:0.75rem;color:var(--text-dim);margin:6px 0;}
@@ -381,7 +383,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="logo">IA<span style="-webkit-text-fill-color:var(--danger)">TRA</span>DER<span class="logo-pro">PRO v2</span></div>
   <div class="subtitle">MTC · ORB · SMART MONEY · ICT · SUPORTES/RESISTÊNCIAS · GESTÃO DE GARANTIA</div>
   <div class="header-badges">
-    <span class="badge badge-live"><span class="live-dot"></span> <span id="badgeData">BRIEFING 03 JUN 2026</span></span>
+    <span class="badge badge-live"><span class="live-dot"></span> <span id="badgeData">PRINT 04 NOV 2026 · 16:35</span></span>
     <span class="badge badge-orb">🎯 ORB GLOBAL</span>
     <span class="badge badge-mtc">🦎 TRADER CAMALEÃO</span>
     <span class="badge badge-ict">📐 SMART MONEY ICT</span>
@@ -396,7 +398,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <details class="dados-box" id="dadosBox" open>
     <summary>📋 DADOS DO MERCADO AGORA <span class="dados-hint">cole antes de atualizar</span></summary>
     <label class="dados-label" for="dadosMercado">Cole cotações e notícias do momento (WIN, WDO, máx/mín da abertura, VWAP, DXY, S&amp;P futuro, Brent, manchetes). A IA usa só o que estiver aqui.</label>
-    <textarea id="dadosMercado" rows="6" placeholder="Ex.: WIN 173.150 (-0,4%) | abertura 9h-9h30: máx 173.500 mín 172.900 | VWAP 173.050&#10;WDO 5.162 (+0,3%) | abertura: máx 5.170 mín 5.152&#10;DXY 104,2 (+0,2%) | S&amp;P fut -0,3% | Brent 95,4 (+1,1%)&#10;Notícia: IPCA-15 acima do esperado"></textarea>
+    <textarea id="dadosMercado" rows="6" data-padrao="1" placeholder="Ex.: WIN 173.150 (-0,4%) | abertura 9h-9h30: máx 173.500 mín 172.900 | VWAP 173.050&#10;WDO 5.162 (+0,3%) | abertura: máx 5.170 mín 5.152&#10;DXY 104,2 (+0,2%) | S&amp;P fut -0,3% | Brent 95,4 (+1,1%)&#10;Notícia: IPCA-15 acima do esperado">Print Profit 04/11 16:35 · WINZ26 5min: último 169.320 (+0,76%). Abertura ~167.600; máx 170.080 (14:20); mín 168.400 (13:20). Range atual 169.150–169.550. VWAP D 169.297 · VWAP S 168.340 · MME9 169.332. Abertura 9h–9h30: máx ~169.380 mín ~167.500. DOLFUT 5.483 (-0,64%) · DOLPT 5,4772 (-0,29%) · INDFUT 169.315 (+0,78%).</textarea>
     <div class="dados-nota" id="iaStatus">A IA deste painel roda pela sua conta do Claude e não acessa a internet. Sem dados colados, os campos de preço ficam com "—".</div>
   </details>
   <div class="time-track-bar" id="timeTrackBar">
@@ -453,7 +455,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 <!-- TICKER -->
 <div class="ticker-wrap">
-  <div class="ticker-label">PAINEL DE ATIVOS · <span id="tickerDataLabel">03 JUN 2026</span> · <span style="color:rgba(75,159,224,0.7)">FONTE: TradingView · Investing · BCB</span></div>
+  <div class="ticker-label">PAINEL DE ATIVOS · <span id="tickerDataLabel">04 NOV 2026 · 16:35</span> · <span style="color:rgba(75,159,224,0.7)">FONTE: print do Profit (WINZ26 5min)</span></div>
   <div class="ticker-inner">
     <div class="ticker-item"><div class="ticker-name">IBOVESPA</div><div class="ticker-val neutral">172.197</div><div class="ticker-chg down">▼ -0,91%</div></div>
     <div class="ticker-item"><div class="ticker-name">WIN FUTURO</div><div class="ticker-val neutral">173.100</div><div class="ticker-chg down">▼ -0,93%</div></div>
@@ -467,6 +469,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="ticker-item"><div class="ticker-name">VWAP WIN</div><div class="ticker-val neutral">172.600</div><div class="ticker-chg neutral">referência</div></div>
   </div>
 </div>
+
+<div class="snap-aviso" id="snapAviso">📸 <strong>Atualizado com o print de 04/11 às 16:35</strong>: ticker de WIN e dólar, VWAPs, S/R e ORB do WIN, confluência e riscos. <span>Sem dados no print: Ibovespa, Brent, Selic, IPCA, S&amp;P, DXY, gráfico do WDO, institucional e agenda.</span></div>
 
 <!-- TABS -->
 <div class="tabs">
@@ -490,7 +494,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <li><span id="macroAlerta1"><strong class="highlight-red">TARIFAS EUA-BR 25%</strong> — Seção 301 USTR. Decisão Trump: <span class="highlight-yellow">15/JUL</span>. Audiência: <span class="highlight-yellow">06/JUL</span>. <span class="tag tag-red">ALTO IMPACTO</span></span></li>
         <li><span id="macroAlerta2">XP: tarifa efetiva média sobe de 9% → <span class="highlight-red">13,8%</span>. ~US$9,5bi exportações afetadas. Petróleo e minério <span class="highlight-green">isentos</span>.</span></li>
         <li><span id="macroAlerta3">Oriente Médio: Brent US$95+ com ataques Israel-Hezbollah retomados. Ormuz: risco de fechamento ativo.</span></li>
-        <li>Mercados globais: S&P +5,15% em maio, Nasdaq +8,36%. Momentum tech + IA sustentando EUA.</li>
+        <li>Ticker do Profit às 16:35: INDFUT 169.315 (+0,78%) · DOLFUT 5.483 (-0,64%) · DOLPT 5,4772 (-0,29%).</li>
       </ul>
       <div class="fonte-bar">
         <span class="fonte-label">fontes</span>
@@ -504,12 +508,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     </div>
     <div class="card warn">
       <div class="card-title">🇧🇷 MACRO BRASIL · CENÁRIO</div>
-      <div class="metric-row"><span class="metric-label">IPCA 2026 (Focus)</span><span class="metric-value down"><span id="macroIPCA">5,09%</span> <span class="tag tag-red">ACIMA DO TETO</span></span></div>
+      <div class="metric-row"><span class="metric-label">IPCA 2026 (Focus)</span><span class="metric-value neutral"><span id="macroIPCA">5,09%</span></span></div>
       <div class="metric-row"><span class="metric-label">Meta inflação (teto)</span><span class="metric-value neutral">4,50%</span></div>
       <div class="metric-row"><span class="metric-label">Selic fim 2026</span><span class="metric-value neutral"><span id="macroSelic">13,25% a.a.</span></span></div>
       <div class="metric-row"><span class="metric-label">COPOM</span><span class="metric-value highlight"><span id="macroCopom">16–17 JUN 2026</span></span></div>
       <div class="metric-row"><span class="metric-label">PIB 2026</span><span class="metric-value up"><span id="macroPIB">+1,90%</span></span></div>
-      <div class="metric-row"><span class="metric-label">USD/BRL projeção</span><span class="metric-value neutral">R$ 5,16</span></div>
+      <div class="metric-row"><span class="metric-label">USD/BRL pronto</span><span class="metric-value down">R$ 5,4772 ▼</span></div>
       <div class="metric-row"><span class="metric-label">Ibovespa fechamento</span><span class="metric-value down"><span id="macroIbovFech">172.197 pts</span></span></div>
       <div class="fonte-bar">
         <span class="fonte-label">fontes</span>
@@ -529,7 +533,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <div class="metric-row"><span class="metric-label">Sinal técnico Brent</span><span class="metric-value down"><span id="macroBrentSinal">VENDA (MA)</span></span></div>
       <div class="metric-row"><span class="metric-label">Driver principal</span><span class="metric-value warn"><span id="macroBrentDriver">Ormuz · Irã-EUA</span></span></div>
       <div class="divider"></div>
-      <div style="font-size:0.73rem;color:var(--text-dim);line-height:1.5">Petróleo e minério na <span class="highlight-green">lista de isenções</span> tarifárias → proteção relativa VALE3, PETR3 → suporte estrutural ao WIN.</div>
+      <div style="font-size:0.73rem;color:var(--text-dim);line-height:1.5">Commodities não aparecem no print. Cole Brent e minério em "Dados do mercado agora" para atualizar.</div>
       <div class="fonte-bar">
         <span class="fonte-label">fontes</span>
         <span class="fonte-tag comm">Investing.com</span>
@@ -542,11 +546,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="card">
       <div class="card-title">💱 CÂMBIO · PARIDADES</div>
       <div class="metric-row"><span class="metric-label">USD/BRL</span><span class="metric-value down"><span id="macroDXY">R$ 5,16 ▼</span></span></div>
-      <div class="metric-row"><span class="metric-label">DXY (índice dólar)</span><span class="metric-value neutral">~104 monitorar</span></div>
-      <div class="metric-row"><span class="metric-label">USD/JPY</span><span class="metric-value neutral">Alvo 152 (BoA)</span></div>
-      <div class="metric-row"><span class="metric-label">EUR/USD</span><span class="metric-value neutral">Monitorar BCE</span></div>
+      <div class="metric-row"><span class="metric-label">Dólar futuro (DOLFUT)</span><span class="metric-value down">5.483 ▼ -0,64%</span></div>
+      <div class="metric-row"><span class="metric-label">DXY (índice dólar)</span><span class="metric-value neutral">—</span></div>
       <div class="divider"></div>
-      <div style="font-size:0.73rem;color:var(--text-dim);line-height:1.5">Dólar recuou com isenções tarifárias digeridas como blefe negociável. Brent acima US$95 pode <span class="highlight-yellow">limitar queda do WDO</span>.</div>
+      <div style="font-size:0.73rem;color:var(--text-dim);line-height:1.5">Dólar em queda (-0,64%) com o índice em alta (+0,76%): a relação inversa está funcionando hoje.</div>
       <div class="fonte-bar">
         <span class="fonte-label">fontes</span>
         <span class="fonte-tag">Investing.com</span>
@@ -557,14 +560,14 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     </div>
     <div class="card">
       <div class="card-title">🦎 CONFLUÊNCIA MTC</div>
-      <div class="metric-row"><span class="metric-label">Macro</span><span class="metric-value warn">CAUTELA</span></div>
-      <div class="metric-row"><span class="metric-label">WIN · BCI/IFNC</span><span class="metric-value neutral">Neutro/Baixista</span></div>
-      <div class="metric-row"><span class="metric-label">WDO · DXY</span><span class="metric-value down">Dólar defensivo</span></div>
-      <div class="metric-row"><span class="metric-label">Fluxo/Tape</span><span class="metric-value neutral">Aguardar abertura</span></div>
-      <div class="metric-row"><span class="metric-label">Gráfico MM200</span><span class="metric-value up">Price acima</span></div>
+      <div class="metric-row"><span class="metric-label">Macro</span><span class="metric-value neutral">sem dado</span></div>
+      <div class="metric-row"><span class="metric-label">WIN × dólar</span><span class="metric-value up">Inversos ✓</span></div>
+      <div class="metric-row"><span class="metric-label">Tendência (VWAP S)</span><span class="metric-value up">Preço acima</span></div>
+      <div class="metric-row"><span class="metric-label">Intraday (VWAP D)</span><span class="metric-value neutral">Em cima · lateral</span></div>
+      <div class="metric-row"><span class="metric-label">Estrutura desde 14:20</span><span class="metric-value down">Topo e fundo menores</span></div>
       <div class="signal-box signal-neutral" style="margin-top:10px">
-        <div class="signal-label">ATENÇÃO</div>
-        <div style="font-size:0.65rem;color:var(--warn);margin-top:3px">Aguardar fluxo ORB de abertura</div>
+        <div class="signal-label">PARCIAL</div>
+        <div style="font-size:0.65rem;color:var(--warn);margin-top:3px">Aguardar rompimento do range 169.150–169.550</div>
       </div>
       <div class="fonte-bar">
         <span class="fonte-label">método</span>
@@ -581,19 +584,19 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);letter-spacing:2px;margin-bottom:8px">WIN — MINI ÍNDICE</div>
         <ul class="bullet-list">
-          <li>Fechamento 172.197. WIN futuro 173.100. Mínima anterior <span class="highlight-yellow">171.793</span> = suporte crítico.</li>
-          <li>IPCA acima do teto pesa sobre ativos de risco. Viés macro: <span class="highlight-red">baixista/neutro</span>.</li>
-          <li>Isenções tarifárias em commodities sustentam Vale/Petro → suporte ao Ibovespa.</li>
-          <li><strong>ORB hoje</strong>: rompimento acima de <span class="highlight-green">173.500</span> com volume = long válido. Abaixo de <span class="highlight-red">172.000</span> = short.</li>
+          <li>WINZ26 169.320 (+0,76%). Abriu perto de 167.600, máxima 170.080 às 14:20, mínima 168.400 às 13:20 (varrida das mínimas da manhã).</li>
+          <li>Desde 15:15: topo e fundo menores. Agora lateral entre <span class="highlight-yellow">169.150 e 169.550</span>, em cima da VWAP D (169.297).</li>
+          <li>Acima da VWAP semanal (168.340): tendência de prazo maior segue de alta.</li>
+          <li><strong>Gatilhos</strong>: fechamento acima de <span class="highlight-green">169.600</span> → 169.900 / 170.080. Abaixo de <span class="highlight-red">169.150</span> → 169.000 / 168.750.</li>
         </ul>
       </div>
       <div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);letter-spacing:2px;margin-bottom:8px">WDO — MINI DÓLAR</div>
         <ul class="bullet-list">
-          <li>Dólar recuou pós-tarifas. Projeção Focus: R$5,16. Range operável: <span class="highlight-yellow">5,10–5,25</span>.</li>
-          <li>Brent US$95+ limita queda do dólar. Ormuz = volatilidade cambial.</li>
-          <li>Audiência tarifária <span class="highlight-yellow">06/JUL</span> e decisão <span class="highlight-red">15/JUL</span> = janela de alta volatilidade WDO.</li>
-          <li><strong>ORB hoje</strong>: DXY acima de suporte + spike petróleo = viés compra WDO. DXY fraco = venda.</li>
+          <li>Dólar futuro 5.483 (-0,64%) e pronto 5,4772 (-0,29%), pelo ticker do Profit.</li>
+          <li>Queda do dólar junto com alta do índice: confluência WIN × WDO coerente.</li>
+          <li>Sem gráfico do WDO no print: níveis, ORB e S/R do WDO ficam em branco.</li>
+          <li>Mande o print do WDO 5min para completar este bloco.</li>
         </ul>
       </div>
     </div>
@@ -617,29 +620,29 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <!-- WIN ORB -->
       <div>
         <div style="font-family:'Orbitron',monospace;font-size:0.65rem;letter-spacing:3px;color:var(--accent2);margin-bottom:10px">WIN · MINI ÍNDICE</div>
-        <div class="metric-row"><span class="metric-label">OR High (máx 15min)</span><span class="metric-value up"><span id="orbWinHigh">173.500 est.</span></span></div>
-        <div class="metric-row"><span class="metric-label">OR Low (mín 15min)</span><span class="metric-value down"><span id="orbWinLow">172.000 est.</span></span></div>
+        <div class="metric-row"><span class="metric-label">OR High (9h00–9h30)</span><span class="metric-value up"><span id="orbWinHigh">173.500 est.</span></span></div>
+        <div class="metric-row"><span class="metric-label">OR Low (9h00–9h30)</span><span class="metric-value down"><span id="orbWinLow">172.000 est.</span></span></div>
         <div class="metric-row"><span class="metric-label">Tamanho do Range</span><span class="metric-value neutral"><span id="orbWinRange">~1.500 pts</span></span></div>
         <div class="metric-row"><span class="metric-label">Range tipo</span><span class="metric-value warn"><span id="orbWinTipo">AMPLO → Oportunidade</span></span></div>
         <div class="orb-box orb-compra" style="margin-top:10px">
           <div class="orb-title">🟢 COMPRA</div>
-          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Candle 5min fecha acima de 173.500 + volume confirmado</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Candle 5min fecha acima de 169.380 + volume · disparou ~10:15</div>
           <div class="orb-params">
             <div class="orb-param"><div class="orb-param-val" style="color:var(--accent2)" id="orbWinCE">173.550</div><div class="orb-param-desc">ENTRADA</div></div>
             <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWinCS">172.800</div><div class="orb-param-desc">STOP</div></div>
             <div class="orb-param"><div class="orb-param-val" style="color:var(--warn)" id="orbWinCA1">174.300</div><div class="orb-param-desc">ALVO 1</div></div>
           </div>
-          <div style="font-size:0.65rem;color:var(--text-dim);margin-top:6px">Alvo 2: <span id="orbWinCA2">175.000</span> · R:R mín 1:2 ✅</div>
+          <div style="font-size:0.65rem;color:var(--text-dim);margin-top:6px">Alvo 2: <span id="orbWinCA2">175.000</span> · stop atingido às 13:20 ❌</div>
         </div>
         <div class="orb-box orb-venda" style="margin-top:8px">
           <div class="orb-title">🔴 VENDA</div>
-          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Candle 5min fecha abaixo de 172.000 + volume confirmado</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Candle 5min fecha abaixo de 167.500 + volume · não disparou</div>
           <div class="orb-params">
             <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWinVE">171.950</div><div class="orb-param-desc">ENTRADA</div></div>
             <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWinVS">172.700</div><div class="orb-param-desc">STOP</div></div>
             <div class="orb-param"><div class="orb-param-val" style="color:var(--warn)" id="orbWinVA1">171.200</div><div class="orb-param-desc">ALVO 1</div></div>
           </div>
-          <div style="font-size:0.65rem;color:var(--text-dim);margin-top:6px">Alvo 2: 170.500 · R:R mín 1:2 ✅</div>
+          <div style="font-size:0.65rem;color:var(--text-dim);margin-top:6px">Alvo 2: 163.645 · range amplo, stop caro</div>
         </div>
       </div>
       <!-- WDO ORB -->
@@ -648,10 +651,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <div class="metric-row"><span class="metric-label">OR High</span><span class="metric-value up"><span id="orbWdoHigh">5.195 est.</span></span></div>
         <div class="metric-row"><span class="metric-label">OR Low</span><span class="metric-value down"><span id="orbWdoLow">5.140 est.</span></span></div>
         <div class="metric-row"><span class="metric-label">Tamanho do Range</span><span class="metric-value neutral"><span id="orbWdoRange">~55 pips</span></span></div>
-        <div class="metric-row"><span class="metric-label">Range tipo</span><span class="metric-value neutral"><span id="orbWdoTipo">MÉDIO → Normal</span></span></div>
+        <div class="metric-row"><span class="metric-label">Range tipo</span><span class="metric-value neutral"><span id="orbWdoTipo">—</span></span></div>
         <div class="orb-box orb-compra" style="margin-top:10px">
           <div class="orb-title">🟢 COMPRA</div>
-          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Candle 5min fecha acima de 5.195 + DXY subindo</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Sem gráfico do WDO no print</div>
           <div class="orb-params">
             <div class="orb-param"><div class="orb-param-val" style="color:var(--accent2)" id="orbWdoCE">5.200</div><div class="orb-param-desc">ENTRADA</div></div>
             <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWdoCS">5.165</div><div class="orb-param-desc">STOP</div></div>
@@ -660,7 +663,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </div>
         <div class="orb-box orb-venda" style="margin-top:8px">
           <div class="orb-title">🔴 VENDA</div>
-          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Candle 5min fecha abaixo de 5.140 + DXY caindo</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Sem gráfico do WDO no print</div>
           <div class="orb-params">
             <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWdoVE">5.135</div><div class="orb-param-desc">ENTRADA</div></div>
             <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWdoVS">5.170</div><div class="orb-param-desc">STOP</div></div>
@@ -736,10 +739,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </div>
       </div>
       <div class="divider"></div>
-      <div class="metric-row"><span class="metric-label">MM200 (tendência)</span><span class="metric-value up"><span id="srWinMM200">~168.000</span> · Price ACIMA ✅</span></div>
-      <div class="metric-row"><span class="metric-label">MM50 (intermediário)</span><span class="metric-value up"><span id="srWinMM50">~170.500</span> · Suporte</span></div>
-      <div class="metric-row"><span class="metric-label">VWAP intraday</span><span class="metric-value neutral">172.600 · Referência</span></div>
-      <div class="metric-row"><span class="metric-label">Fib 61.8% swing</span><span class="metric-value neutral">172.400</span></div>
+      <div class="metric-row"><span class="metric-label">MM200 (tendência)</span><span class="metric-value neutral"><span id="srWinMM200">—</span></span></div>
+      <div class="metric-row"><span class="metric-label">MM50 (intermediário)</span><span class="metric-value neutral"><span id="srWinMM50">—</span></span></div>
+      <div class="metric-row"><span class="metric-label">VWAP semanal</span><span class="metric-value up">168.340 · preço acima ✅</span></div>
+      <div class="metric-row"><span class="metric-label">Fib 61,8% (168.400→170.080)</span><span class="metric-value neutral">169.040</span></div>
       <div class="fonte-bar">
         <span class="fonte-label">fontes</span>
         <span class="fonte-tag ict">ICT Order Blocks</span>
@@ -765,14 +768,14 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           <div class="sr-level"><span>S1</span><span style="font-weight:700" id="srWdoS1">5.160</span><span class="sr-tag sr-s" id="srWdoS1T">PTAX ref.</span></div>
           <div class="sr-level"><span>S2</span><span style="font-weight:700" id="srWdoS2">5.140</span><span class="sr-tag sr-s" id="srWdoS2T">mín OR</span></div>
           <div class="sr-level"><span>S3</span><span style="font-weight:700" id="srWdoS3">5.107</span><span class="sr-tag sr-s" id="srWdoS3T">alvo ORB</span></div>
-          <div class="sr-level"><span>S4</span><span style="font-weight:700">5.100</span><span class="sr-tag sr-s">forte</span></div>
+          <div class="sr-level"><span>S4</span><span style="font-weight:700">—</span><span class="sr-tag sr-s">—</span></div>
           <div class="sr-level"><span>OB Bull</span><span style="font-weight:700" id="srWdoOBBull">5.130</span><span class="sr-tag sr-ob">order block</span></div>
         </div>
       </div>
       <div class="divider"></div>
-      <div class="metric-row"><span class="metric-label">PTAX (BCB)</span><span class="metric-value neutral">R$ 5,16 · referência</span></div>
+      <div class="metric-row"><span class="metric-label">Dólar pronto</span><span class="metric-value down">R$ 5,4772 ▼</span></div>
       <div class="metric-row"><span class="metric-label">DXY correlação</span><span class="metric-value neutral">DXY ▲ = WDO ▲</span></div>
-      <div class="metric-row"><span class="metric-label">Fib 50% swing</span><span class="metric-value neutral">5.165</span></div>
+      <div class="metric-row"><span class="metric-label">Fib 50% swing</span><span class="metric-value neutral">—</span></div>
       <div class="metric-row"><span class="metric-label">Brent correlação</span><span class="metric-value warn">Brent ▲ = pressão WDO ▲</span></div>
     </div>
   </div>
@@ -1013,12 +1016,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       </ul>
     </div>
     <div class="card danger">
-      <div class="card-title">🚨 RISCOS DO DIA · 03 JUN 2026</div>
+      <div class="card-title">🚨 RISCOS DO DIA · 04 NOV 2026</div>
       <div style="margin-bottom:10px">
         <div style="font-size:0.65rem;font-family:'Share Tech Mono',monospace;color:var(--danger);letter-spacing:2px;margin-bottom:6px">WIN</div>
         <ul class="bullet-list">
-          <li>IPCA 5,09% acima do teto — viés macro baixista para ativos de risco</li>
-          <li>Tarifas EUA-BR 25% — exportadoras vulneráveis (exceto commodities)</li>
+          <li id="riscoWin1">—</li>
+          <li id="riscoWin2">—</li>
           <li id="riscoWin3">Rompimento de 171.793 abre caminho para 170.000</li>
         </ul>
       </div>
@@ -1042,7 +1045,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <!-- ===== PANEL AGENDA ===== -->
 <div id="agenda" class="panel">
   <div class="card">
-    <div class="card-title">📅 AGENDA ECONÔMICA · SEMANA 02–06 JUN 2026</div>
+    <div class="card-title">📅 AGENDA ECONÔMICA · SEMANA 02–06 JUN 2026 · DESATUALIZADA (não veio no print)</div>
     <table class="agenda-table">
       <thead><tr><th>DATA/HORA</th><th>EVENTO</th><th>PAÍS</th><th>IMP.</th><th>ANTERIOR</th><th>CONSENSO</th><th>WIN</th><th>WDO</th></tr></thead>
       <tbody>
@@ -1372,6 +1375,8 @@ function iaErroMsg(e) {
   if (c === 'cancelled') return 'Análise cancelada.';
   return 'Falha de conexão com a IA. Tente de novo.';
 }
+const DADOS_PRINT_0411 = {"ticker": {"ibovespa": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "win": {"val": "169.320", "chg": "▲ +0,76%", "dir": "up"}, "wdo": {"val": "5.483", "chg": "▼ -0,64% (DOLFUT)", "dir": "down"}, "brent": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "wti": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "selic": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "ipca": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "sp500": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "dxy": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "vwap_win": {"val": "169.297", "chg": "VWAP S 168.340", "dir": "neutral"}}, "macro": {"alerta1": "Dados de 04/11 16:35 lidos do print do Profit (WINZ26 5min). Macro, commodities e agenda não aparecem no print.", "alerta2": "WIN +0,76% no dia; dólar futuro -0,64% (5.483) e dólar pronto -0,29% (5,4772): relação inversa WIN × dólar respeitada.", "alerta3": "Para completar macro e commodities, cole cotações e notícias em \"Dados do mercado agora\" e toque em Atualizar Mercado.", "ipca_val": "—", "selic_val": "—", "copom_data": "—", "pib": "—", "ibov_fech": "—", "brent_val": "—", "wti_val": "—", "brent_sinal": "—", "brent_driver": "—", "dxy_val": "R$ 5,4772 ▼ -0,29% (pronto)"}, "sr_win": {"r3": "170.080", "r3_tipo": "máx. do dia 14:20", "r2": "169.900", "r2_tipo": "topo OB de baixa", "r1": "169.600", "r1_tipo": "topo do range", "vwap": "169.297", "ob_bear": "169.750–169.900", "s1": "169.150", "s1_tipo": "fundo do range", "s2": "169.000", "s2_tipo": "mín. 15:45 · fib 61,8%", "s3": "168.750", "s3_tipo": "mín. da manhã", "s4": "168.400", "s4_tipo": "mín. do dia", "ob_bull": "168.450–168.800", "mm200": "—", "mm50": "—", "fib618": "169.040", "fvg_zona": "—", "liq_buyside": "170.080", "liq_sellside": "169.000"}, "sr_wdo": {"r3": "—", "r2": "—", "r1": "—", "vwap": "—", "ob_bear": "—", "s1": "—", "s2": "—", "s3": "—", "ob_bull": "—", "ptax": "—", "fib50": "—", "fvg_zona": "—"}, "orb": {"win_or_high": "169.380", "win_or_low": "167.500", "win_range": "~1.880 pts", "win_tipo": "AMPLO → stop caro", "win_compra_entrada": "169.475", "win_compra_stop": "168.440", "win_compra_alvo1": "171.355", "win_compra_alvo2": "173.235", "win_venda_entrada": "167.405", "win_venda_stop": "168.440", "win_venda_alvo1": "165.525", "wdo_or_high": "—", "wdo_or_low": "—", "wdo_range": "—", "wdo_compra_entrada": "—", "wdo_compra_stop": "—", "wdo_compra_alvo1": "—", "wdo_venda_entrada": "—", "wdo_venda_stop": "—", "wdo_venda_alvo1": "—", "fakeout_risco": "ORB de hoje já passou: a compra disparou ~10:15 acima de 169.475 e o stop no meio do range (168.440) foi atingido na varrida das 13:20."}, "mtc": {"confluencia": "PARCIAL", "operar_win": "AGUARDAR", "motivo_win": "preço na VWAP D (169.297), no meio do range 169.150–169.550. Só rompimento com fechamento: acima de 169.600 ou abaixo de 169.150.", "operar_wdo": "AGUARDAR", "motivo_wdo": "sem print do WDO. Dólar -0,64% coerente com WIN em alta.", "risco_dia": "16:35: fim de pregão com liquidez menor. Sem posição nova depois das 17:30."}, "riscos": {"win_r1": "Operar no meio do range 169.150–169.550: risco:retorno ruim.", "win_r2": "Rompimento falso de 169.600 batendo no OB de baixa 169.750–169.900.", "win_r3": "Perder 169.000 abre caminho rápido até 168.750.", "wdo_r1": "Sem gráfico do WDO no print.", "wdo_r2": "—", "wdo_r3": "—", "oport1": "Fechamento de 5 min acima de 169.600 → 169.900 / 170.080.", "oport2": "Fechamento abaixo de 169.150 → 169.000 / 168.750.", "oport3": "Reação em 169.000 (mín. 15:45 + fib 61,8% do swing 168.400→170.080)."}};
+aplicarDados(DADOS_PRINT_0411);
 // rascunho dos dados colados (só neste navegador)
 (function() {
   const ta = document.getElementById('dadosMercado');
