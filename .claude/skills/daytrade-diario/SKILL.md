@@ -34,6 +34,16 @@ python3 -I .claude/skills/daytrade-diario/importar_profit.py <caminho do Operati
 
 O script lê a data do cabeçalho, converte lado e preços, ajusta arredondamentos para o resultado bater com a corretora e substitui as operações daquele dia mantendo as anotações manuais (stop, alvo, setup, seguiu_plano, emocao, notas). Depois confira o total bruto com o "Res. Total Intervalo" da última linha do relatório.
 
+## Planilha Excel
+
+Depois de qualquer importação ou alteração no diário, regenere a planilha e envie ao usuário:
+
+```
+python3 .claude/skills/daytrade-diario/gerar_planilha.py diario/trades.csv diario/diario_trades.xlsx --custo WIN=1,WDO=0
+```
+
+Abas: Operações (pontos, R$ bruto, custo, líquido, acumulado), Resumo por dia e totais. Ajuste `--custo` quando o usuário informar o custo por contrato da corretora.
+
 ## Como registrar à mão
 
 1. Extraia os campos da mensagem do usuário. Converta preços no formato brasileiro (`5.162,5`) para `5162.5`.
