@@ -1,0 +1,2175 @@
+<title>IA TRADER PRO</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap');
+:root {
+  --bg:#020408;--surface:#060d14;--card:#0a1520;--border:#0d2235;
+  --accent:#00d4ff;--accent2:#00ff88;--warn:#ffb800;--danger:#ff3860;
+  --text:#b8d4e8;--text-dim:#4a6a80;
+  --glow:0 0 20px rgba(0,212,255,0.3);--glow-g:0 0 20px rgba(0,255,136,0.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.container{max-width:1440px;margin:0 auto;padding:20px;position:relative;z-index:1;}
+
+/* HEADER */
+.header{text-align:center;padding:28px 20px 18px;border-bottom:1px solid var(--border);margin-bottom:20px;position:relative;}
+.header::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:220px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.logo{font-family:'Orbitron',monospace;font-size:2.2rem;font-weight:900;letter-spacing:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(0,212,255,0.5));}
+.logo-pro{font-size:0.65rem;letter-spacing:4px;color:var(--warn);-webkit-text-fill-color:var(--warn);font-family:'Share Tech Mono',monospace;margin-left:8px;vertical-align:middle;}
+.subtitle{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--text-dim);letter-spacing:4px;margin-top:5px;}
+.header-badges{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:0.65rem;font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
+.badge-live{background:rgba(255,56,96,0.1);border:1px solid rgba(255,56,96,0.3);color:var(--danger);}
+.badge-orb{background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3);color:var(--warn);}
+.badge-mtc{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);}
+.badge-ict{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--accent2);}
+.live-dot{width:6px;height:6px;background:var(--danger);border-radius:50%;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* BOTÃO ATUALIZAR */
+.update-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 20px;border-radius:8px;cursor:pointer;
+  background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(0,255,136,0.1));
+  border:1px solid rgba(0,212,255,0.5);
+  color:var(--accent);font-family:'Orbitron',monospace;
+  font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;
+  transition:all 0.25s;position:relative;overflow:hidden;
+}
+.update-btn:hover:not(:disabled){box-shadow:0 0 25px rgba(0,212,255,0.4);transform:translateY(-1px);border-color:var(--accent);}
+.update-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.update-btn .spin{display:inline-block;animation:spin 0.8s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.update-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,0.15),transparent);
+  transition:left 0.4s;}
+.update-btn:hover::before{left:100%;}
+.last-update{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);letter-spacing:1px;}
+
+/* OVERLAY LOADING */
+.loading-overlay{
+  position:fixed;inset:0;z-index:999;
+  background:rgba(2,4,8,0.92);backdrop-filter:blur(6px);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+}
+.loading-overlay.active{display:flex;}
+.loading-logo{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;letter-spacing:6px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.loading-ring{width:60px;height:60px;border-radius:50%;
+  border:3px solid rgba(0,212,255,0.1);
+  border-top:3px solid var(--accent);
+  border-right:3px solid var(--accent2);
+  animation:spin 1s linear infinite;}
+.loading-steps{display:flex;flex-direction:column;gap:8px;min-width:280px;}
+.loading-step{display:flex;align-items:center;gap:10px;
+  font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--text-dim);
+  padding:6px 12px;border-radius:5px;border:1px solid transparent;transition:all 0.3s;}
+.loading-step.active{color:var(--accent);border-color:rgba(0,212,255,0.2);background:rgba(0,212,255,0.05);}
+.loading-step.done{color:var(--accent2);border-color:rgba(0,255,136,0.2);background:rgba(0,255,136,0.04);}
+.step-icon{width:16px;text-align:center;}
+.loading-msg{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--text-dim);letter-spacing:2px;}
+
+/* ATUALIZAÇÃO HIGHLIGHT */
+@keyframes flashUpdate{0%{background:rgba(0,212,255,0.15)}100%{background:transparent}}
+.updated{animation:flashUpdate 1.5s ease-out;}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:1000;
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:12px 18px;font-family:'Share Tech Mono',monospace;font-size:0.72rem;
+  display:flex;align-items:center;gap:10px;
+  transform:translateY(80px);opacity:0;transition:all 0.3s;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(0,255,136,0.4);color:var(--accent2);}
+.toast.error{border-color:rgba(255,56,96,0.4);color:var(--danger);}
+.toast.warn{border-color:rgba(255,184,0,0.4);color:var(--warn);}
+
+/* FASE PREGÃO */
+.fase-bar{display:flex;gap:0;margin-bottom:20px;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.fase-item{flex:1;padding:8px 4px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:1px;color:var(--text-dim);cursor:pointer;transition:all 0.2s;border-right:1px solid var(--border);background:var(--surface);}
+.fase-item:last-child{border-right:none;}
+.fase-item.active-fase{background:rgba(255,184,0,0.15);color:var(--warn);font-weight:700;}
+.fase-item.done{background:rgba(0,255,136,0.05);color:var(--accent2);}
+.fase-emoji{font-size:1rem;display:block;margin-bottom:2px;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--surface);padding:5px;border-radius:10px;border:1px solid var(--border);overflow-x:auto;}
+.tab{flex:1;min-width:110px;padding:9px 12px;background:transparent;border:none;color:var(--text-dim);font-family:'Exo 2',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:7px;transition:all 0.2s;white-space:nowrap;}
+.tab:hover{color:var(--accent);background:rgba(0,212,255,0.05);}
+.tab.active{background:rgba(0,212,255,0.12);color:var(--accent);border:1px solid rgba(0,212,255,0.3);box-shadow:var(--glow);}
+.panel{display:none;animation:fadeIn 0.3s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);}
+.card.green::before{background:var(--accent2);}
+.card.warn::before{background:var(--warn);}
+.card.danger::before{background:var(--danger);}
+.card.purple::before{background:#a855f7;}
+.card-title{font-family:'Orbitron',monospace;font-size:0.65rem;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.card.green .card-title{color:var(--accent2);}
+.card.warn .card-title{color:var(--warn);}
+.card.danger .card-title{color:var(--danger);}
+.card.purple .card-title{color:#a855f7;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+/* TICKER */
+.ticker-wrap{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:18px;}
+.ticker-label{background:rgba(0,212,255,0.08);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:2px;padding:4px 12px;border-bottom:1px solid var(--border);}
+.ticker-inner{display:flex;overflow-x:auto;padding:8px 0;}
+.ticker-item{flex-shrink:0;padding:5px 18px;border-right:1px solid var(--border);text-align:center;}
+.ticker-name{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text-dim);}
+.ticker-val{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;margin:2px 0;}
+.ticker-chg{font-size:0.6rem;font-family:'Share Tech Mono',monospace;}
+.up{color:var(--accent2);}.down{color:var(--danger);}.neutral{color:var(--warn);}
+
+/* METRIC */
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(13,34,53,0.8);}
+.metric-row:last-child{border-bottom:none;}
+.metric-label{font-size:0.78rem;color:var(--text-dim);}
+.metric-value{font-family:'Share Tech Mono',monospace;font-size:0.85rem;font-weight:600;}
+
+/* SR LEVELS */
+.sr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
+.sr-block{background:rgba(0,0,0,0.3);border-radius:7px;padding:10px;}
+.sr-title{font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:2px;margin-bottom:8px;}
+.sr-level{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(13,34,53,0.5);font-family:'Share Tech Mono',monospace;font-size:0.75rem;}
+.sr-level:last-child{border-bottom:none;}
+.sr-tag{font-size:0.6rem;padding:1px 6px;border-radius:3px;}
+.sr-r{background:rgba(255,56,96,0.15);border:1px solid rgba(255,56,96,0.3);color:var(--danger);}
+.sr-s{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--accent2);}
+.sr-v{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);}
+.sr-ob{background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#a855f7;}
+
+/* ORB */
+.orb-box{border-radius:8px;padding:14px;margin-top:10px;border:1px solid;}
+.orb-compra{background:rgba(0,255,136,0.07);border-color:rgba(0,255,136,0.3);}
+.orb-venda{background:rgba(255,56,96,0.07);border-color:rgba(255,56,96,0.3);}
+.orb-aguardar{background:rgba(255,184,0,0.07);border-color:rgba(255,184,0,0.3);}
+.orb-title{font-family:'Orbitron',monospace;font-size:0.8rem;font-weight:900;letter-spacing:3px;}
+.orb-compra .orb-title{color:var(--accent2);}
+.orb-venda .orb-title{color:var(--danger);}
+.orb-aguardar .orb-title{color:var(--warn);}
+.orb-params{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.orb-param{background:rgba(0,0,0,0.3);border-radius:5px;padding:8px;text-align:center;}
+.orb-param-val{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;}
+.orb-param-desc{font-size:0.6rem;font-family:'Share Tech Mono',monospace;color:var(--text-dim);margin-top:2px;letter-spacing:1px;}
+
+/* CHECKLIST */
+.checklist{list-style:none;}
+.checklist li{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(13,34,53,0.5);font-size:0.78rem;}
+.checklist li:last-child{border-bottom:none;}
+.check-icon{width:16px;height:16px;border-radius:3px;border:1px solid;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;}
+.check-ok{background:rgba(0,255,136,0.15);border-color:var(--accent2);color:var(--accent2);}
+.check-no{background:rgba(255,56,96,0.15);border-color:var(--danger);color:var(--danger);}
+.check-warn{background:rgba(255,184,0,0.15);border-color:var(--warn);color:var(--warn);}
+
+/* INSTITUCIONAL */
+.inst-bar{height:20px;border-radius:4px;overflow:hidden;display:flex;margin:8px 0;}
+.inst-buy{background:linear-gradient(90deg,rgba(0,255,136,0.4),rgba(0,255,136,0.2));}
+.inst-sell{background:linear-gradient(90deg,rgba(255,56,96,0.2),rgba(255,56,96,0.4));}
+.inst-labels{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.65rem;}
+
+/* SIGNAL */
+.signal-box{border-radius:8px;padding:14px;text-align:center;margin-top:8px;}
+.signal-buy{background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.3);}
+.signal-sell{background:rgba(255,56,96,0.08);border:1px solid rgba(255,56,96,0.3);}
+.signal-neutral{background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.3);}
+.signal-label{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;letter-spacing:4px;}
+.signal-buy .signal-label{color:var(--accent2);}
+.signal-sell .signal-label{color:var(--danger);}
+.signal-neutral .signal-label{color:var(--warn);}
+
+/* RISK CALC */
+.risk-input{width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:0.82rem;outline:none;transition:border 0.2s;}
+.risk-input:focus{border-color:var(--accent);box-shadow:0 0 10px rgba(0,212,255,0.2);}
+.risk-label{font-size:0.68rem;color:var(--text-dim);letter-spacing:1px;margin-bottom:5px;font-family:'Share Tech Mono',monospace;text-transform:uppercase;}
+.risk-field{margin-bottom:12px;}
+.calc-btn{width:100%;padding:11px;background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(0,255,136,0.1));border:1px solid rgba(0,212,255,0.4);color:var(--accent);font-family:'Orbitron',monospace;font-size:0.7rem;letter-spacing:3px;border-radius:8px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
+.calc-btn:hover{box-shadow:var(--glow);transform:translateY(-1px);}
+
+/* GARANTIA BOX */
+.garantia-box{background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:10px;}
+.garantia-title{font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;}
+.garantia-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.garantia-item{text-align:center;padding:10px 8px;background:rgba(0,0,0,0.2);border-radius:6px;border:1px solid var(--border);}
+.garantia-val{font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;}
+.garantia-desc{font-size:0.6rem;font-family:'Share Tech Mono',monospace;color:var(--text-dim);margin-top:3px;letter-spacing:1px;}
+.garantia-warn{background:rgba(255,56,96,0.08);border-color:rgba(255,56,96,0.25);}
+.garantia-warn .garantia-val{color:var(--danger);}
+.garantia-ok .garantia-val{color:var(--accent2);}
+.garantia-info .garantia-val{color:var(--warn);}
+.garantia-blue .garantia-val{color:var(--accent);}
+
+/* RESULT GRID */
+.result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px;}
+.result-item{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;}
+.result-num{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;color:var(--accent2);}
+.result-num.red{color:var(--danger);}
+.result-num.warn{color:var(--warn);}
+.result-desc{font-size:0.6rem;font-family:'Share Tech Mono',monospace;color:var(--text-dim);margin-top:3px;letter-spacing:1px;}
+
+/* PROMPT */
+.prompt-box{background:rgba(0,0,0,0.4);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:14px;font-family:'Share Tech Mono',monospace;font-size:0.72rem;line-height:1.75;color:#a0c4d8;white-space:pre-wrap;word-break:break-word;position:relative;}
+.copy-btn{position:absolute;top:10px;right:10px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:0.6rem;padding:3px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:all 0.2s;}
+.copy-btn:hover{background:rgba(0,212,255,0.2);}
+
+/* AGENDA TABLE */
+.agenda-table{width:100%;border-collapse:collapse;font-size:0.76rem;}
+.agenda-table th{font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:2px;color:var(--text-dim);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;}
+.agenda-table td{padding:9px 10px;border-bottom:1px solid rgba(13,34,53,0.6);vertical-align:middle;}
+.agenda-table tr:hover td{background:rgba(0,212,255,0.02);}
+.imp-high{color:var(--danger);font-weight:700;font-family:'Share Tech Mono',monospace;font-size:0.7rem;}
+.imp-med{color:var(--warn);font-weight:700;font-family:'Share Tech Mono',monospace;font-size:0.7rem;}
+.imp-low{color:var(--accent2);font-family:'Share Tech Mono',monospace;font-size:0.7rem;}
+
+/* BULLET */
+.bullet-list{list-style:none;}
+.bullet-list li{padding:6px 0;border-bottom:1px solid rgba(13,34,53,0.5);font-size:0.78rem;line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
+.bullet-list li:last-child{border-bottom:none;}
+.bullet-list li::before{content:'▸';color:var(--accent);flex-shrink:0;margin-top:1px;}
+
+/* TAGS */
+.tag{display:inline-block;font-size:0.58rem;font-family:'Share Tech Mono',monospace;letter-spacing:1px;padding:2px 7px;border-radius:3px;text-transform:uppercase;margin-right:3px;}
+.tag-blue{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);}
+.tag-green{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--accent2);}
+.tag-red{background:rgba(255,56,96,0.1);border:1px solid rgba(255,56,96,0.3);color:var(--danger);}
+.tag-yellow{background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3);color:var(--warn);}
+.tag-purple{background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);color:#a855f7;}
+
+.highlight{color:var(--accent);font-weight:600;}
+.highlight-green{color:var(--accent2);font-weight:600;}
+.highlight-red{color:var(--danger);font-weight:600;}
+.highlight-yellow{color:var(--warn);font-weight:600;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.divider{height:1px;background:var(--border);margin:12px 0;}
+
+/* FONTE BAR */
+.fonte-bar{
+  display:flex;align-items:center;justify-content:flex-end;
+  gap:6px;padding:5px 10px;
+  border-top:1px solid var(--border);
+  margin-top:10px;flex-wrap:wrap;
+}
+.fonte-label{
+  font-family:'Share Tech Mono',monospace;font-size:0.52rem;
+  letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;
+}
+.fonte-tag{
+  display:inline-flex;align-items:center;gap:3px;
+  font-family:'Share Tech Mono',monospace;font-size:0.55rem;
+  letter-spacing:1px;padding:2px 7px;border-radius:3px;
+  background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);
+  color:var(--text-dim);cursor:default;transition:all 0.2s;
+}
+.fonte-tag:hover{color:var(--accent);border-color:rgba(0,212,255,0.35);}
+.fonte-tag.macro{background:rgba(255,56,96,0.06);border-color:rgba(255,56,96,0.2);color:rgba(255,56,96,0.7);}
+.fonte-tag.macro:hover{color:var(--danger);border-color:var(--danger);}
+.fonte-tag.comm{background:rgba(0,255,136,0.06);border-color:rgba(0,255,136,0.2);color:rgba(0,255,136,0.6);}
+.fonte-tag.comm:hover{color:var(--accent2);border-color:var(--accent2);}
+.fonte-tag.geo{background:rgba(255,184,0,0.06);border-color:rgba(255,184,0,0.2);color:rgba(255,184,0,0.6);}
+.fonte-tag.geo:hover{color:var(--warn);border-color:var(--warn);}
+.fonte-tag.ict{background:rgba(168,85,247,0.06);border-color:rgba(168,85,247,0.2);color:rgba(168,85,247,0.6);}
+.fonte-tag.ict:hover{color:#a855f7;border-color:#a855f7;}
+.fonte-tag.ai{background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.25);color:var(--accent);}
+.fonte-updated{
+  font-family:'Share Tech Mono',monospace;font-size:0.5rem;
+  color:var(--text-dim);margin-left:auto;letter-spacing:1px;
+}
+
+/* CHART PANEL */
+.chart-upload-box{
+  border:2px dashed var(--border);border-radius:10px;
+  padding:30px 20px;text-align:center;cursor:pointer;
+  transition:all 0.25s;background:rgba(0,0,0,0.2);
+  position:relative;
+}
+.chart-upload-box:hover{border-color:rgba(0,212,255,0.4);background:rgba(0,212,255,0.04);}
+.chart-upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.chart-icon{font-size:2.5rem;margin-bottom:8px;}
+.chart-upload-text{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--text-dim);letter-spacing:2px;}
+.chart-preview{width:100%;border-radius:8px;border:1px solid var(--border);max-height:400px;object-fit:contain;display:none;}
+.chart-analysis-box{
+  background:rgba(0,0,0,0.35);border:1px solid rgba(0,212,255,0.2);
+  border-radius:8px;padding:14px;margin-top:12px;
+  font-family:'Share Tech Mono',monospace;font-size:0.75rem;
+  line-height:1.8;color:var(--text);min-height:80px;display:none;
+}
+.chart-analysis-box.loading{color:var(--text-dim);animation:tickPulse 1.2s infinite;}
+.chart-btn{
+  width:100%;margin-top:10px;padding:10px;
+  background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(0,212,255,0.1));
+  border:1px solid rgba(168,85,247,0.4);color:#a855f7;
+  font-family:'Orbitron',monospace;font-size:0.65rem;letter-spacing:3px;
+  border-radius:8px;cursor:pointer;transition:all 0.2s;display:none;
+}
+.chart-btn:hover{box-shadow:0 0 20px rgba(168,85,247,0.3);transform:translateY(-1px);}
+.chart-clear{
+  background:transparent;border:1px solid rgba(255,56,96,0.3);
+  color:rgba(255,56,96,0.6);font-family:'Share Tech Mono',monospace;
+  font-size:0.6rem;padding:4px 10px;border-radius:4px;cursor:pointer;
+  margin-left:8px;transition:all 0.2s;
+}
+.chart-clear:hover{color:var(--danger);border-color:var(--danger);}
+
+/* TIME TRACK BAR */
+.time-track-bar{
+  display:flex;align-items:center;justify-content:center;
+  gap:0;margin-top:12px;
+  background:rgba(0,0,0,0.3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px 16px;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.time-track-item{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.time-track-label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.52rem;letter-spacing:2px;
+  color:var(--text-dim);text-transform:uppercase;
+}
+.time-track-val{
+  font-family:'Orbitron',monospace;
+  font-size:0.78rem;font-weight:700;
+  color:var(--accent);
+  transition:all 0.3s;
+}
+.time-track-sep{
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.9rem;color:var(--border);
+  padding:0 6px;margin-top:8px;
+}
+@keyframes tickPulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.time-track-val.ticking{animation:tickPulse 1s infinite;}
+
+:root{color-scheme:dark;}
+.chart-analysis-box{white-space:pre-wrap;}
+.dados-box{max-width:720px;margin:14px auto 0;text-align:left;border:1px solid var(--border);background:var(--surface);border-radius:6px;padding:10px 14px;}
+.dados-box summary{cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:2px;color:var(--accent);}
+.dados-box summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+.dados-hint{color:var(--text-dim);letter-spacing:1px;margin-left:6px;}
+.dados-label{display:block;font-size:0.75rem;color:var(--text-dim);line-height:1.6;margin:10px 0 8px;}
+.dados-box textarea{width:100%;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:10px;font-family:'Share Tech Mono',monospace;font-size:0.78rem;line-height:1.5;resize:vertical;}
+.dados-box textarea:focus{outline:none;border-color:var(--accent);box-shadow:var(--glow);}
+.dados-nota{font-size:0.68rem;color:var(--warn);margin-top:8px;line-height:1.5;}
+@media (max-width:480px){.container{padding-left:16px;padding-right:16px;}}
+
+.snap-aviso{max-width:1100px;margin:0 auto 14px;padding:10px 14px;border:1px solid rgba(255,184,0,0.4);background:rgba(255,184,0,0.07);border-radius:6px;font-size:0.75rem;line-height:1.6;color:var(--text);}
+.snap-aviso span{color:var(--text-dim);}
+.chart-anot{margin-top:14px;border:1px solid var(--border);border-radius:6px;padding:12px;background:var(--surface);}
+.chart-anot-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:2px;color:#a855f7;margin-bottom:8px;}
+.chart-anot-status{font-size:0.75rem;color:var(--text-dim);margin:6px 0;}
+.chart-anot img{display:block;width:100%;height:auto;margin-top:6px;border-radius:4px;}
+.chart-anot-legenda{list-style:none;display:grid;gap:4px;margin:10px 0 0;font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--text);}
+.chart-anot-legenda li{display:flex;gap:8px;align-items:baseline;}
+.chart-anot-legenda .cor{width:10px;height:10px;border-radius:2px;flex:none;transform:translateY(1px);}
+</style>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">IA<span style="-webkit-text-fill-color:var(--danger)">TRA</span>DER<span class="logo-pro">PRO v2</span></div>
+  <div class="subtitle">MTC · ORB · SMART MONEY · ICT · SUPORTES/RESISTÊNCIAS · GESTÃO DE GARANTIA</div>
+  <div class="header-badges">
+    <span class="badge badge-live"><span class="live-dot"></span> <span id="badgeData">PRINT 06 NOV 2026 · 12:00</span></span>
+    <span class="badge badge-orb">🎯 ORB GLOBAL</span>
+    <span class="badge badge-mtc">🦎 TRADER CAMALEÃO</span>
+    <span class="badge badge-ict">📐 SMART MONEY ICT</span>
+    <span class="badge" style="background:rgba(39,119,202,0.15);border:1px solid rgba(39,119,202,0.4);color:#4b9fe0;">📡 TRADINGVIEW</span>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px;flex-wrap:wrap;">
+    <button class="update-btn" id="btnAtualizar" onclick="atualizarDashboard()">
+      <span id="btnIcon">⟳</span>
+      <span id="btnText">ATUALIZAR MERCADO</span>
+    </button>
+  </div>
+  <details class="dados-box" id="dadosBox" open>
+    <summary>📋 DADOS DO MERCADO AGORA <span class="dados-hint">cole antes de atualizar</span></summary>
+    <label class="dados-label" for="dadosMercado">Cole cotações e notícias do momento (WIN, WDO, máx/mín da abertura, VWAP, DXY, S&amp;P futuro, Brent, manchetes). A IA usa só o que estiver aqui.</label>
+    <textarea id="dadosMercado" rows="6" data-padrao="1" placeholder="Ex.: WIN 173.150 (-0,4%) | abertura 9h-9h30: máx 173.500 mín 172.900 | VWAP 173.050&#10;WDO 5.162 (+0,3%) | abertura: máx 5.170 mín 5.152&#10;DXY 104,2 (+0,2%) | S&amp;P fut -0,3% | Brent 95,4 (+1,1%)&#10;Notícia: IPCA-15 acima do esperado">Print Profit 06/11 12:00 · WINZ26 15min: último 170.235 (+1,64%). Mín. do dia ~167.400; máx. 170.435. MME9 169.340 · MME21 168.887 · VWAP D 168.687. Agressão 60% compra (97,47k) × 40% venda (64,81k). Abertura 9h–9h30: máx ~168.500 mín ~167.400. DOLFUT 5.513,5 (-0,31%) · DOLPT 5,4615 (-0,29%) · INDFUT 170.115 (+1,58%). Resultado do dia no WIN: R$ 439 líquido.</textarea>
+    <div class="dados-nota" id="iaStatus">A IA deste painel roda pela sua conta do Claude e não acessa a internet. Sem dados colados, os campos de preço ficam com "—".</div>
+  </details>
+  <div class="time-track-bar" id="timeTrackBar">
+    <div class="time-track-item">
+      <span class="time-track-label">ANÁLISE ANTERIOR</span>
+      <span class="time-track-val" id="tAnterior">—</span>
+    </div>
+    <div class="time-track-sep">→</div>
+    <div class="time-track-item">
+      <span class="time-track-label">ANÁLISE ATUAL</span>
+      <span class="time-track-val" id="tAtual">—</span>
+    </div>
+    <div class="time-track-sep">|</div>
+    <div class="time-track-item">
+      <span class="time-track-label">INTERVALO</span>
+      <span class="time-track-val" id="tIntervalo" style="color:var(--warn)">—</span>
+    </div>
+    <div class="time-track-sep">|</div>
+    <div class="time-track-item">
+      <span class="time-track-label">PRÓXIMA EM</span>
+      <span class="time-track-val" id="tProxima" style="color:var(--accent2)">—</span>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-logo">IA TRADER PRO</div>
+  <div class="loading-ring"></div>
+  <div class="loading-steps">
+    <div class="loading-step" id="step1"><span class="step-icon">🌐</span>Varrendo notícias macro globais...</div>
+    <div class="loading-step" id="step2"><span class="step-icon">🛢️</span>Atualizando commodities e câmbio...</div>
+    <div class="loading-step" id="step3"><span class="step-icon">📐</span>Calculando S/R e Order Blocks...</div>
+    <div class="loading-step" id="step4"><span class="step-icon">🏦</span>Analisando posicionamento institucional...</div>
+    <div class="loading-step" id="step5"><span class="step-icon">🎯</span>Gerando setup ORB e viés do momento...</div>
+    <div class="loading-step" id="step6"><span class="step-icon">🦎</span>Consolidando confluência MTC...</div>
+  </div>
+  <div class="loading-msg" id="loadingMsg">PROCESSANDO...</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FASE DO PREGÃO -->
+<div class="fase-bar">
+  <div class="fase-item done"><span class="fase-emoji">🔔</span>PRÉ-ABERT<br>8h45–9h</div>
+  <div class="fase-item active-fase"><span class="fase-emoji">🎯</span>ORB WINDOW<br>9h–9h30</div>
+  <div class="fase-item"><span class="fase-emoji">🔥</span>MANHÃ PRIME<br>9h30–11h</div>
+  <div class="fase-item"><span class="fase-emoji">😴</span>MEIO-DIA<br>11h–13h</div>
+  <div class="fase-item"><span class="fase-emoji">⚡</span>TARDE PRIME<br>13h–15h</div>
+  <div class="fase-item"><span class="fase-emoji">🔔</span>FECHAMENTO<br>15h–17h30</div>
+  <div class="fase-item"><span class="fase-emoji">📊</span>AFTER<br>17h30+</div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-label">PAINEL DE ATIVOS · <span id="tickerDataLabel">06 NOV 2026 · 12:00</span> · <span style="color:rgba(75,159,224,0.7)">FONTE: print do Profit (WINZ26 15min)</span></div>
+  <div class="ticker-inner">
+    <div class="ticker-item"><div class="ticker-name">IBOVESPA</div><div class="ticker-val neutral">172.197</div><div class="ticker-chg down">▼ -0,91%</div></div>
+    <div class="ticker-item"><div class="ticker-name">WIN FUTURO</div><div class="ticker-val neutral">173.100</div><div class="ticker-chg down">▼ -0,93%</div></div>
+    <div class="ticker-item"><div class="ticker-name">WDO/USD</div><div class="ticker-val up">R$ 5,16</div><div class="ticker-chg down">▼ recuo</div></div>
+    <div class="ticker-item"><div class="ticker-name">BRENT</div><div class="ticker-val up">US$ 95,45</div><div class="ticker-chg up">▲ +2,25%</div></div>
+    <div class="ticker-item"><div class="ticker-name">WTI</div><div class="ticker-val up">US$ 92,54</div><div class="ticker-chg up">▲ +1%</div></div>
+    <div class="ticker-item"><div class="ticker-name">SELIC</div><div class="ticker-val neutral">13,25%</div><div class="ticker-chg neutral">COPOM 16/JUN</div></div>
+    <div class="ticker-item"><div class="ticker-name">IPCA 2026</div><div class="ticker-val down">5,09%</div><div class="ticker-chg down">▲ 12ª alta</div></div>
+    <div class="ticker-item"><div class="ticker-name">S&P 500</div><div class="ticker-val up">51.078</div><div class="ticker-chg up">▲ +0,09%</div></div>
+    <div class="ticker-item"><div class="ticker-name">DXY</div><div class="ticker-val neutral">~104</div><div class="ticker-chg neutral">monitorar</div></div>
+    <div class="ticker-item"><div class="ticker-name">VWAP WIN</div><div class="ticker-val neutral">172.600</div><div class="ticker-chg neutral">referência</div></div>
+  </div>
+</div>
+
+<div class="snap-aviso" id="snapAviso">📸 <strong>Atualizado com o print de 06/11 às 12:00</strong>: ticker de WIN e dólar, VWAP D, médias 9/21, pressão de agressão, S/R e ORB do WIN, confluência e riscos. Resultado do dia no WIN: <strong>R$ 439 líquido</strong> (boleta do Profit). <span>Sem dados no print: Ibovespa, Brent, Selic, IPCA, S&amp;P, DXY, gráfico do WDO, institucional e agenda.</span></div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('briefing',this)">📊 Briefing</button>
+  <button class="tab" onclick="showTab('orb',this)">🎯 ORB Abertura</button>
+  <button class="tab" onclick="showTab('sr',this)">📐 S/R + ICT</button>
+  <button class="tab" onclick="showTab('institucional',this)">🏦 Institucional</button>
+  <button class="tab" onclick="showTab('risco',this)">🛡️ Risco + Garantia</button>
+  <button class="tab" onclick="showTab('agenda',this)">📅 Agenda</button>
+  <button class="tab" onclick="showTab('grafico',this)">📈 Análise Gráfico</button>
+  <button class="tab" onclick="showTab('fontes',this)">🔗 Fontes</button>
+  <button class="tab" onclick="showTab('prompts',this)">⚡ Prompts</button>
+</div>
+
+<!-- ===== PANEL BRIEFING ===== -->
+<div id="briefing" class="panel active">
+  <div class="grid-2">
+    <div class="card danger">
+      <div class="card-title">🌐 MACRO GEOPOLÍTICA · ALERTA ATIVO</div>
+      <ul class="bullet-list">
+        <li><span id="macroAlerta1"><strong class="highlight-red">TARIFAS EUA-BR 25%</strong> — Seção 301 USTR. Decisão Trump: <span class="highlight-yellow">15/JUL</span>. Audiência: <span class="highlight-yellow">06/JUL</span>. <span class="tag tag-red">ALTO IMPACTO</span></span></li>
+        <li><span id="macroAlerta2">XP: tarifa efetiva média sobe de 9% → <span class="highlight-red">13,8%</span>. ~US$9,5bi exportações afetadas. Petróleo e minério <span class="highlight-green">isentos</span>.</span></li>
+        <li><span id="macroAlerta3">Oriente Médio: Brent US$95+ com ataques Israel-Hezbollah retomados. Ormuz: risco de fechamento ativo.</span></li>
+        <li>Ticker do Profit às 12:00: INDFUT 170.115 (+1,58%) · DOLFUT 5.513,5 (-0,31%) · DOLPT 5,4615 (-0,29%).</li>
+      </ul>
+      <div class="fonte-bar">
+        <span class="fonte-label">fontes</span>
+        <span class="fonte-tag macro">CNBC</span>
+        <span class="fonte-tag macro">CNN Brasil</span>
+        <span class="fonte-tag macro">Valor Econômico</span>
+        <span class="fonte-tag geo">Geopolítica BR</span>
+        <span class="fonte-tag ai">IA TRADER · Claude</span>
+        <span class="fonte-updated" id="fonteUpdateMacro">—</span>
+      </div>
+    </div>
+    <div class="card warn">
+      <div class="card-title">🇧🇷 MACRO BRASIL · CENÁRIO</div>
+      <div class="metric-row"><span class="metric-label">IPCA 2026 (Focus)</span><span class="metric-value neutral"><span id="macroIPCA">5,09%</span></span></div>
+      <div class="metric-row"><span class="metric-label">Meta inflação (teto)</span><span class="metric-value neutral">4,50%</span></div>
+      <div class="metric-row"><span class="metric-label">Selic fim 2026</span><span class="metric-value neutral"><span id="macroSelic">13,25% a.a.</span></span></div>
+      <div class="metric-row"><span class="metric-label">COPOM</span><span class="metric-value highlight"><span id="macroCopom">16–17 JUN 2026</span></span></div>
+      <div class="metric-row"><span class="metric-label">PIB 2026</span><span class="metric-value up"><span id="macroPIB">+1,90%</span></span></div>
+      <div class="metric-row"><span class="metric-label">USD/BRL pronto</span><span class="metric-value down">R$ 5,4615 ▼</span></div>
+      <div class="metric-row"><span class="metric-label">Ibovespa fechamento</span><span class="metric-value down"><span id="macroIbovFech">172.197 pts</span></span></div>
+      <div class="fonte-bar">
+        <span class="fonte-label">fontes</span>
+        <span class="fonte-tag macro">BCB · Focus</span>
+        <span class="fonte-tag macro">InfoMoney</span>
+        <span class="fonte-tag macro">Valor Econômico</span>
+        <span class="fonte-tag ai">IA TRADER · Claude</span>
+        <span class="fonte-updated" id="fonteUpdateBrasil">—</span>
+      </div>
+    </div>
+  </div>
+  <div class="grid-3">
+    <div class="card green">
+      <div class="card-title">🛢️ COMMODITIES</div>
+      <div class="metric-row"><span class="metric-label">Brent (ICE)</span><span class="metric-value up"><span id="macroBrent">US$ 95,45 ▲</span></span></div>
+      <div class="metric-row"><span class="metric-label">WTI (NYMEX)</span><span class="metric-value up"><span id="macroWTI">US$ 92,54 ▲</span></span></div>
+      <div class="metric-row"><span class="metric-label">Sinal técnico Brent</span><span class="metric-value down"><span id="macroBrentSinal">VENDA (MA)</span></span></div>
+      <div class="metric-row"><span class="metric-label">Driver principal</span><span class="metric-value warn"><span id="macroBrentDriver">Ormuz · Irã-EUA</span></span></div>
+      <div class="divider"></div>
+      <div style="font-size:0.73rem;color:var(--text-dim);line-height:1.5">Commodities não aparecem no print. Cole Brent e minério em "Dados do mercado agora" para atualizar.</div>
+      <div class="fonte-bar">
+        <span class="fonte-label">fontes</span>
+        <span class="fonte-tag comm">Investing.com</span>
+        <span class="fonte-tag comm">TradingView</span>
+        <span class="fonte-tag comm">Hub3</span>
+        <span class="fonte-tag comm">Google Finanças</span>
+        <span class="fonte-updated" id="fonteUpdateComm">—</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💱 CÂMBIO · PARIDADES</div>
+      <div class="metric-row"><span class="metric-label">USD/BRL</span><span class="metric-value down"><span id="macroDXY">R$ 5,16 ▼</span></span></div>
+      <div class="metric-row"><span class="metric-label">Dólar futuro (DOLFUT)</span><span class="metric-value down">5.513,5 ▼ -0,31%</span></div>
+      <div class="metric-row"><span class="metric-label">DXY (índice dólar)</span><span class="metric-value neutral">—</span></div>
+      <div class="divider"></div>
+      <div style="font-size:0.73rem;color:var(--text-dim);line-height:1.5">Dólar em queda (-0,31%) com o índice em forte alta (+1,64%): a relação inversa está funcionando hoje.</div>
+      <div class="fonte-bar">
+        <span class="fonte-label">fontes</span>
+        <span class="fonte-tag">Investing.com</span>
+        <span class="fonte-tag">BCB · PTAX</span>
+        <span class="fonte-tag">TradingView · DXY</span>
+        <span class="fonte-updated" id="fonteUpdateCambio">—</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🦎 CONFLUÊNCIA MTC</div>
+      <div class="metric-row"><span class="metric-label">Macro</span><span class="metric-value neutral">sem dado</span></div>
+      <div class="metric-row"><span class="metric-label">WIN × dólar</span><span class="metric-value up">Inversos ✓</span></div>
+      <div class="metric-row"><span class="metric-label">Médias 9 e 21 (15min)</span><span class="metric-value up">Preço acima ✓</span></div>
+      <div class="metric-row"><span class="metric-label">Intraday (VWAP D)</span><span class="metric-value warn">Acima · esticado</span></div>
+      <div class="metric-row"><span class="metric-label">Fluxo (agressão)</span><span class="metric-value up">60% compra</span></div>
+      <div class="signal-box signal-buy" style="margin-top:10px">
+        <div class="signal-label">ALINHADOS</div>
+        <div style="font-size:0.65rem;color:var(--accent2);margin-top:3px">Viés comprador · esperar pullback em 170.000 / 169.340</div>
+      </div>
+      <div class="fonte-bar">
+        <span class="fonte-label">método</span>
+        <span class="fonte-tag ict">Trader Camaleão</span>
+        <span class="fonte-tag ict">ICT Smart Money</span>
+        <span class="fonte-tag ict">ORB Global</span>
+        <span class="fonte-updated" id="fonteUpdateMTC">—</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🎯 DIRECIONAL WIN & WDO · RESUMO DO DIA</div>
+    <div class="grid-2">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);letter-spacing:2px;margin-bottom:8px">WIN — MINI ÍNDICE</div>
+        <ul class="bullet-list">
+          <li>WINZ26 170.235 (+1,64%). Mínima perto de 167.400 na primeira hora; desde então, rali contínuo até 170.435.</li>
+          <li>Recuperou toda a queda de 05/11 e voltou à região de 30/out (170.000–171.000).</li>
+          <li>Acima da MME9 (169.340), da MME21 (168.887) e da VWAP D (168.687). Agressão 60% compradora.</li>
+          <li><strong>Plano</strong>: compra só em recuo a <span class="highlight-green">170.000</span> ou à MME9. Resistência em <span class="highlight-red">171.000</span> (máx. 05/11).</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--text-dim);letter-spacing:2px;margin-bottom:8px">WDO — MINI DÓLAR</div>
+        <ul class="bullet-list">
+          <li>Dólar futuro 5.513,5 (-0,31%) e pronto 5,4615 (-0,29%), pelo ticker do Profit.</li>
+          <li>Queda do dólar junto com alta do índice: confluência WIN × WDO coerente.</li>
+          <li>Seus 3 trades no WDO hoje: -R$ 210, +R$ 30 e -R$ 35 (bruto).</li>
+          <li>Sem gráfico do WDO no print: níveis, ORB e S/R do WDO ficam em branco.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL ORB ===== -->
+<div id="orb" class="panel">
+  <div class="card warn">
+    <div class="card-title">🎯 OPENING RANGE BREAKOUT · JANELA 9h00–9h30</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:8px;line-height:1.6">Estratégia ORB de maior assertividade global (2026): aguardar <strong style="color:var(--warn)">fechamento do candle de 5min</strong> fora do range, jamais entrar no tick. Filtros obrigatórios antes de qualquer entrada.</div>
+    <div class="fonte-bar" style="margin-bottom:10px;border-top:none;padding-top:0">
+      <span class="fonte-label">fontes</span>
+      <span class="fonte-tag">LiteFinance · ORB 2026</span>
+      <span class="fonte-tag">TradeSwing · Backtest</span>
+      <span class="fonte-tag ict">TradingView · ICT ORB</span>
+      <span class="fonte-tag ai">IA TRADER · Claude</span>
+      <span class="fonte-updated" id="fonteUpdateORB">—</span>
+    </div>
+    <div class="grid-2">
+      <!-- WIN ORB -->
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:0.65rem;letter-spacing:3px;color:var(--accent2);margin-bottom:10px">WIN · MINI ÍNDICE</div>
+        <div class="metric-row"><span class="metric-label">OR High (9h00–9h30)</span><span class="metric-value up"><span id="orbWinHigh">173.500 est.</span></span></div>
+        <div class="metric-row"><span class="metric-label">OR Low (9h00–9h30)</span><span class="metric-value down"><span id="orbWinLow">172.000 est.</span></span></div>
+        <div class="metric-row"><span class="metric-label">Tamanho do Range</span><span class="metric-value neutral"><span id="orbWinRange">~1.500 pts</span></span></div>
+        <div class="metric-row"><span class="metric-label">Range tipo</span><span class="metric-value warn"><span id="orbWinTipo">AMPLO → Oportunidade</span></span></div>
+        <div class="orb-box orb-compra" style="margin-top:10px">
+          <div class="orb-title">🟢 COMPRA</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Candle fecha acima de ~168.500 · alvo 1 atingido ✅</div>
+          <div class="orb-params">
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--accent2)" id="orbWinCE">173.550</div><div class="orb-param-desc">ENTRADA</div></div>
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWinCS">172.800</div><div class="orb-param-desc">STOP</div></div>
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--warn)" id="orbWinCA1">174.300</div><div class="orb-param-desc">ALVO 1</div></div>
+          </div>
+          <div style="font-size:0.65rem;color:var(--text-dim);margin-top:6px">Alvo 2: <span id="orbWinCA2">175.000</span> · a caminho do alvo 2 ⏳</div>
+        </div>
+        <div class="orb-box orb-venda" style="margin-top:8px">
+          <div class="orb-title">🔴 VENDA</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Candle fecha abaixo de ~167.400 · não disparou</div>
+          <div class="orb-params">
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWinVE">171.950</div><div class="orb-param-desc">ENTRADA</div></div>
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWinVS">172.700</div><div class="orb-param-desc">STOP</div></div>
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--warn)" id="orbWinVA1">171.200</div><div class="orb-param-desc">ALVO 1</div></div>
+          </div>
+          <div style="font-size:0.65rem;color:var(--text-dim);margin-top:6px">Alvo 2: 165.145 · não disparou</div>
+        </div>
+      </div>
+      <!-- WDO ORB -->
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:0.65rem;letter-spacing:3px;color:var(--accent);margin-bottom:10px">WDO · MINI DÓLAR</div>
+        <div class="metric-row"><span class="metric-label">OR High</span><span class="metric-value up"><span id="orbWdoHigh">5.195 est.</span></span></div>
+        <div class="metric-row"><span class="metric-label">OR Low</span><span class="metric-value down"><span id="orbWdoLow">5.140 est.</span></span></div>
+        <div class="metric-row"><span class="metric-label">Tamanho do Range</span><span class="metric-value neutral"><span id="orbWdoRange">~55 pips</span></span></div>
+        <div class="metric-row"><span class="metric-label">Range tipo</span><span class="metric-value neutral"><span id="orbWdoTipo">—</span></span></div>
+        <div class="orb-box orb-compra" style="margin-top:10px">
+          <div class="orb-title">🟢 COMPRA</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Sem gráfico do WDO no print</div>
+          <div class="orb-params">
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--accent2)" id="orbWdoCE">5.200</div><div class="orb-param-desc">ENTRADA</div></div>
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWdoCS">5.165</div><div class="orb-param-desc">STOP</div></div>
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--warn)" id="orbWdoCA1">5.228</div><div class="orb-param-desc">ALVO 1</div></div>
+          </div>
+        </div>
+        <div class="orb-box orb-venda" style="margin-top:8px">
+          <div class="orb-title">🔴 VENDA</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px">Sem gráfico do WDO no print</div>
+          <div class="orb-params">
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWdoVE">5.135</div><div class="orb-param-desc">ENTRADA</div></div>
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--danger)" id="orbWdoVS">5.170</div><div class="orb-param-desc">STOP</div></div>
+            <div class="orb-param"><div class="orb-param-val" style="color:var(--warn)" id="orbWdoVA1">5.107</div><div class="orb-param-desc">ALVO 1</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTROS OBRIGATÓRIOS -->
+  <div class="card">
+    <div class="card-title">✅ CHECKLIST ORB · FILTROS OBRIGATÓRIOS (3 de 5 mínimo)</div>
+    <div class="grid-2">
+      <div>
+        <div style="font-size:0.68rem;font-family:'Share Tech Mono',monospace;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px">CONFIRMAR ANTES DE ENTRAR</div>
+        <ul class="checklist">
+          <li><span class="check-icon check-ok">✓</span>Candle de 5min FECHOU fora do OR (nunca intracandle)</li>
+          <li><span class="check-icon check-warn">?</span>Volume do candle > média dos 5 anteriores</li>
+          <li><span class="check-icon check-warn">?</span>Delta positivo (compradores > vendedores no VAP)</li>
+          <li><span class="check-icon check-ok">✓</span>Macro alinhada com direção do rompimento</li>
+          <li><span class="check-icon check-warn">?</span>Institucional (ranking corretoras) no mesmo lado</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:0.68rem;font-family:'Share Tech Mono',monospace;color:var(--danger);margin-bottom:8px;letter-spacing:2px">🚫 NÃO OPERAR SE:</div>
+        <ul class="checklist">
+          <li><span class="check-icon check-no">✗</span>Candle voltou para dentro do OR após rompimento = FAKEOUT</li>
+          <li><span class="check-icon check-no">✗</span>Volume abaixo da média = rompimento sem convicção</li>
+          <li><span class="check-icon check-no">✗</span>Dado econômico em menos de 20 minutos</li>
+          <li><span class="check-icon check-no">✗</span>Macro contradizendo o gráfico (ex: short WIN + commodities subindo)</li>
+          <li><span class="check-icon check-no">✗</span>Range menor que 300pts WIN / 20pips WDO = sem liquidez</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANTI-FAKEOUT ICT -->
+  <div class="card purple">
+    <div class="card-title">🔮 ARMADILHA LIQUIDITY SWEEP · ANTI-FAKEOUT ICT</div>
+    <div style="font-size:0.78rem;line-height:1.7;color:var(--text)">
+      Padrão <strong style="color:#a855f7">Power of Three (PO3)</strong> institucional na abertura:<br>
+      <span style="color:var(--text-dim)">1.</span> <span class="highlight-yellow">ACUMULAÇÃO</span> — range se forma nos primeiros 5–10min. Institucional construindo posição.<br>
+      <span style="color:var(--text-dim)">2.</span> <span class="highlight-red">MANIPULAÇÃO</span> — price quebra um dos lados do OR brevemente (sem volume) → <strong>caça os stops dos retail</strong> → este é o <span class="tag tag-red">FAKEOUT</span>.<br>
+      <span style="color:var(--text-dim)">3.</span> <span class="highlight-green">DISTRIBUIÇÃO</span> — movimento real ocorre na <strong>direção oposta</strong> ao fakeout, com volume forte.<br><br>
+      <strong style="color:#a855f7">Solução prática:</strong> Se o rompimento ocorreu com vela pequena e sem volume → aguardar 1 candle adicional. Se o price reverter e fechar de volta no OR → o fakeout aconteceu, operar na direção <em>contrária</em> ao rompimento falso.
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL S/R + ICT ===== -->
+<div id="sr" class="panel">
+  <div class="grid-2">
+    <!-- WIN SR -->
+    <div class="card">
+      <div class="card-title">📐 SUPORTES & RESISTÊNCIAS · WIN</div>
+      <div class="sr-grid">
+        <div class="sr-block">
+          <div class="sr-title" style="color:var(--danger)">RESISTÊNCIAS</div>
+          <div class="sr-level"><span>R3</span><span style="font-weight:700" id="srWinR3">175.000</span><span class="sr-tag sr-r" id="srWinR3T">número redondo</span></div>
+          <div class="sr-level"><span>R2</span><span style="font-weight:700" id="srWinR2">174.300</span><span class="sr-tag sr-r" id="srWinR2T">alvo ORB</span></div>
+          <div class="sr-level"><span>R1</span><span style="font-weight:700" id="srWinR1">173.975</span><span class="sr-tag sr-r" id="srWinR1T">máx dia ant.</span></div>
+          <div class="sr-level"><span>VWAP</span><span style="font-weight:700" id="srWinVWAP">172.600</span><span class="sr-tag sr-v">dinâmico</span></div>
+          <div class="sr-level"><span>OB Bear</span><span style="font-weight:700" id="srWinOBBear">174.000</span><span class="sr-tag sr-ob">order block</span></div>
+        </div>
+        <div class="sr-block">
+          <div class="sr-title" style="color:var(--accent2)">SUPORTES</div>
+          <div class="sr-level"><span>S1</span><span style="font-weight:700" id="srWinS1">172.197</span><span class="sr-tag sr-s" id="srWinS1T">fech. ontem</span></div>
+          <div class="sr-level"><span>S2</span><span style="font-weight:700" id="srWinS2">171.793</span><span class="sr-tag sr-s" id="srWinS2T">mín dia ant.</span></div>
+          <div class="sr-level"><span>S3</span><span style="font-weight:700" id="srWinS3">171.000</span><span class="sr-tag sr-s" id="srWinS3T">número redondo</span></div>
+          <div class="sr-level"><span>S4</span><span style="font-weight:700" id="srWinS4">170.000</span><span class="sr-tag sr-s" id="srWinS4T">forte</span></div>
+          <div class="sr-level"><span>OB Bull</span><span style="font-weight:700" id="srWinOBBull">171.500</span><span class="sr-tag sr-ob">order block</span></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="metric-row"><span class="metric-label">MM200 (tendência)</span><span class="metric-value neutral"><span id="srWinMM200">—</span></span></div>
+      <div class="metric-row"><span class="metric-label">MM50 (intermediário)</span><span class="metric-value neutral"><span id="srWinMM50">—</span></span></div>
+      <div class="metric-row"><span class="metric-label">MME21 (15min)</span><span class="metric-value up">168.887 · preço acima ✅</span></div>
+      <div class="metric-row"><span class="metric-label">Fib 61,8% (167.400→170.435)</span><span class="metric-value neutral">168.560</span></div>
+      <div class="fonte-bar">
+        <span class="fonte-label">fontes</span>
+        <span class="fonte-tag ict">ICT Order Blocks</span>
+        <span class="fonte-tag">TradingView · WIN</span>
+        <span class="fonte-tag comm">B3 · Histórico</span>
+        <span class="fonte-updated" id="fonteUpdateSR">—</span>
+      </div>
+    </div>
+    <!-- WDO SR -->
+    <div class="card">
+      <div class="card-title">📐 SUPORTES & RESISTÊNCIAS · WDO</div>
+      <div class="sr-grid">
+        <div class="sr-block">
+          <div class="sr-title" style="color:var(--danger)">RESISTÊNCIAS</div>
+          <div class="sr-level"><span>R3</span><span style="font-weight:700" id="srWdoR3">5.250</span><span class="sr-tag sr-r" id="srWdoR3T">número redondo</span></div>
+          <div class="sr-level"><span>R2</span><span style="font-weight:700" id="srWdoR2">5.228</span><span class="sr-tag sr-r" id="srWdoR2T">alvo ORB</span></div>
+          <div class="sr-level"><span>R1</span><span style="font-weight:700" id="srWdoR1">5.200</span><span class="sr-tag sr-r" id="srWdoR1T">psicológico</span></div>
+          <div class="sr-level"><span>VWAP</span><span style="font-weight:700" id="srWdoVWAP">5.175</span><span class="sr-tag sr-v">dinâmico</span></div>
+          <div class="sr-level"><span>OB Bear</span><span style="font-weight:700" id="srWdoOBBear">5.210</span><span class="sr-tag sr-ob">order block</span></div>
+        </div>
+        <div class="sr-block">
+          <div class="sr-title" style="color:var(--accent2)">SUPORTES</div>
+          <div class="sr-level"><span>S1</span><span style="font-weight:700" id="srWdoS1">5.160</span><span class="sr-tag sr-s" id="srWdoS1T">PTAX ref.</span></div>
+          <div class="sr-level"><span>S2</span><span style="font-weight:700" id="srWdoS2">5.140</span><span class="sr-tag sr-s" id="srWdoS2T">mín OR</span></div>
+          <div class="sr-level"><span>S3</span><span style="font-weight:700" id="srWdoS3">5.107</span><span class="sr-tag sr-s" id="srWdoS3T">alvo ORB</span></div>
+          <div class="sr-level"><span>S4</span><span style="font-weight:700">—</span><span class="sr-tag sr-s">—</span></div>
+          <div class="sr-level"><span>OB Bull</span><span style="font-weight:700" id="srWdoOBBull">5.130</span><span class="sr-tag sr-ob">order block</span></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="metric-row"><span class="metric-label">Dólar pronto</span><span class="metric-value down">R$ 5,4615 ▼</span></div>
+      <div class="metric-row"><span class="metric-label">DXY correlação</span><span class="metric-value neutral">DXY ▲ = WDO ▲</span></div>
+      <div class="metric-row"><span class="metric-label">Fib 50% swing</span><span class="metric-value neutral">—</span></div>
+      <div class="metric-row"><span class="metric-label">Brent correlação</span><span class="metric-value warn">Brent ▲ = pressão WDO ▲</span></div>
+    </div>
+  </div>
+
+  <!-- ICT CONCEPTS -->
+  <div class="card purple">
+    <div class="card-title">📐 SMART MONEY · ICT CONCEPTS ATIVOS</div>
+    <div class="grid-3">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#a855f7;letter-spacing:2px;margin-bottom:8px">ORDER BLOCKS</div>
+        <ul class="bullet-list">
+          <li><span class="tag tag-green">BULLISH OB</span> WIN 171.500 — último candle baixista antes do rally. Suporte institucional válido.</li>
+          <li><span class="tag tag-red">BEARISH OB</span> WIN 174.000 — último candle altista antes da queda. Resistência institucional.</li>
+          <li><span class="tag tag-green">BULLISH OB</span> WDO 5.130 — zona de recompra institucional.</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#a855f7;letter-spacing:2px;margin-bottom:8px">FAIR VALUE GAPS</div>
+        <ul class="bullet-list">
+          <li>FVG WIN <span class="highlight-yellow">172.800–173.200</span> — imbalância não preenchida. Mercado tende a retornar.</li>
+          <li>FVG WDO <span class="highlight-yellow">5.155–5.170</span> — gap de preço ativo.</li>
+          <li>Regra: FVG só válido se alinhado com estrutura do timeframe maior (diário/semanal).</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#a855f7;letter-spacing:2px;margin-bottom:8px">LIQUIDITY ZONES</div>
+        <ul class="bullet-list">
+          <li><span class="tag tag-yellow">BUY-SIDE LIQ.</span> WIN acima de 173.975 (máx ant.) — stops de vendidos acumulados.</li>
+          <li><span class="tag tag-red">SELL-SIDE LIQ.</span> WIN abaixo de 171.793 (mín ant.) — stops de comprados.</li>
+          <li>Institucional vai CAÇAR estas zonas antes do movimento real.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOMENTO OPERAR VS ESPERAR -->
+  <div class="grid-2">
+    <div class="card green">
+      <div class="card-title">✅ MOMENTOS DE OPERAR</div>
+      <ul class="bullet-list">
+        <li><span class="tag tag-yellow">9h–9h30</span> Janela ORB com volume confirmado + macro alinhada</li>
+        <li><span class="tag tag-green">9h30–11h</span> Manhã prime — alta liquidez — continuation ou retest</li>
+        <li><span class="tag tag-blue">13h–15h</span> Tarde prime — NY abre às 10h30 BRT — segunda janela</li>
+        <li>Price retorna a Order Block ou FVG com volume de absorção</li>
+        <li>Liquidity sweep confirmado + inversão de estrutura (BOS)</li>
+        <li>Institucional no mesmo lado da operação (ranking corretoras)</li>
+        <li>Confluência de 3+ fatores: macro + fluxo + gráfico</li>
+      </ul>
+    </div>
+    <div class="card danger">
+      <div class="card-title">🚫 MOMENTOS DE ESPERAR</div>
+      <ul class="bullet-list">
+        <li><span class="tag tag-yellow">11h–13h</span> Meio-dia — volume reduzido — baixa liquidez</li>
+        <li>Candle ainda não fechou no rompimento (nunca entrar intracandle)</li>
+        <li>Fakeout recente no mesmo nível — aguardar nova estrutura</li>
+        <li>Dado econômico em menos de 20 minutos</li>
+        <li>Lateralização sem catalisador claro (range < 200pts WIN)</li>
+        <li>Macro contradizendo o gráfico (ex: vender WIN com Brent subindo forte)</li>
+        <li>Volume abaixo da média dos 5 candles anteriores</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL INSTITUCIONAL ===== -->
+<div id="institucional" class="panel">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🏦 POSICIONAMENTO INSTITUCIONAL · WIN</div>
+      <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:10px">Saldo comprador vs. vendedor — grandes players</div>
+      <div class="inst-bar">
+        <div class="inst-buy" style="width:58%"></div>
+        <div class="inst-sell" style="width:42%"></div>
+      </div>
+      <div class="inst-labels"><span class="up">▲ COMPRA 58%</span><span class="down">▼ VENDA 42%</span></div>
+      <div class="divider"></div>
+      <div class="metric-row"><span class="metric-label">Bancos estrangeiros</span><span class="metric-value up"><span id="instWinExt">COMPRADORES líquidos</span></span></div>
+      <div class="metric-row"><span class="metric-label">Fundos nacionais</span><span class="metric-value neutral"><span id="instWinFundos">Neutros / aguardando</span></span></div>
+      <div class="metric-row"><span class="metric-label">Pessoa física</span><span class="metric-value down"><span id="instWinPF">Vendedora (cautela tarifas)</span></span></div>
+      <div class="metric-row"><span class="metric-label">Algoritmos HFT</span><span class="metric-value neutral"><span id="instWinHFT">Lateralização detectada</span></span></div>
+      <div class="divider"></div>
+      <div style="font-size:0.72rem;color:var(--text-dim);line-height:1.6">
+        <strong style="color:var(--accent2)">Sinal de compra institucional:</strong> Absorção em suporte (volume alto sem queda), delta VAP positivo, lotes 50+ no ask, BTG/XP/Goldman no comprador.<br>
+        <strong style="color:var(--danger)">Sinal de venda institucional:</strong> Distribuição na resistência, lotes grandes no bid, delta negativo no VAP, bancos nacionais no vendedor.
+      </div>
+      <div class="fonte-bar">
+        <span class="fonte-label">fontes</span>
+        <span class="fonte-tag ict">Tape Reading · VAP</span>
+        <span class="fonte-tag">B3 · Ranking Corret.</span>
+        <span class="fonte-tag">SuperDOM · Book</span>
+        <span class="fonte-updated" id="fonteUpdateInst">—</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏦 POSICIONAMENTO INSTITUCIONAL · WDO</div>
+      <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:10px">Saldo cambial — exportadores vs. importadores</div>
+      <div class="inst-bar">
+        <div class="inst-buy" style="width:44%"></div>
+        <div class="inst-sell" style="width:56%"></div>
+      </div>
+      <div class="inst-labels"><span class="up">▲ COMPRA 44%</span><span class="down">▼ VENDA 56%</span></div>
+      <div class="divider"></div>
+      <div class="metric-row"><span class="metric-label">Exportadores</span><span class="metric-value down"><span id="instWdoExport">VENDENDO dólar (hedge)</span></span></div>
+      <div class="metric-row"><span class="metric-label">Importadores</span><span class="metric-value up"><span id="instWdoImport">Comprando (proteção)</span></span></div>
+      <div class="metric-row"><span class="metric-label">BCB (swap)</span><span class="metric-value neutral"><span id="instWdoBCB">Sem leilão hoje</span></span></div>
+      <div class="metric-row"><span class="metric-label">Bancos estrangeiros</span><span class="metric-value neutral"><span id="instWdoExt">Aguardando tarifas</span></span></div>
+      <div class="divider"></div>
+      <div style="font-size:0.72rem;color:var(--text-dim);line-height:1.6">
+        Exportadores vendendo dólar pesa sobre WDO no curto prazo. Incerteza tarifária mantém importadores comprando proteção. <span class="highlight-yellow">Viés resultante: lateral com pressão vendedora.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">🔮 TAPE READING · SINAIS A MONITORAR</div>
+    <div class="grid-3">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#a855f7;letter-spacing:2px;margin-bottom:8px">SUPER DOM</div>
+        <ul class="bullet-list">
+          <li>Lotes 50+ contratos no ASK em suporte = compra institucional confirmada</li>
+          <li>Lotes 50+ no BID em resistência = venda institucional</li>
+          <li>Spoofing: ordens grandes que somem antes de executar = ignorar</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#a855f7;letter-spacing:2px;margin-bottom:8px">VOLUME AT PRICE</div>
+        <ul class="bullet-list">
+          <li>VAP mostra onde o volume se concentrou = níveis de interesse real</li>
+          <li>Point of Control (POC) = nível de maior volume = ímã intraday</li>
+          <li>Delta positivo no rompimento = compra agressor maior que venda</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#a855f7;letter-spacing:2px;margin-bottom:8px">RANKING CORRETORAS</div>
+        <ul class="bullet-list">
+          <li>BTG, XP, Goldman, JPMorgan compradores = tendência de alta</li>
+          <li>Bradesco, Itaú, BB vendedores = pressão de baixa estrutural</li>
+          <li>Monitorar top 3 corretoras no WIN e WDO a cada 15min</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card warn">
+    <div class="card-title">⚡ CORRELAÇÕES MTC · MACRO → FLUXO → PREÇO</div>
+    <div class="grid-2">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--warn);letter-spacing:2px;margin-bottom:8px">WIN · CORRELAÇÕES</div>
+        <div class="metric-row"><span class="metric-label">Brent ▲</span><span class="metric-value up">WIN ▲ (via PETR3/VALE3)</span></div>
+        <div class="metric-row"><span class="metric-label">Minério ▲</span><span class="metric-value up">WIN ▲ (via VALE3)</span></div>
+        <div class="metric-row"><span class="metric-label">S&P 500 ▲</span><span class="metric-value up">WIN ▲ (correlação 0,7+)</span></div>
+        <div class="metric-row"><span class="metric-label">DXY ▲</span><span class="metric-value down">WIN ▼ (capital foge BR)</span></div>
+        <div class="metric-row"><span class="metric-label">Selic ▲ surpresa</span><span class="metric-value down">WIN ▼ (custo capital)</span></div>
+      </div>
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--warn);letter-spacing:2px;margin-bottom:8px">WDO · CORRELAÇÕES</div>
+        <div class="metric-row"><span class="metric-label">DXY ▲</span><span class="metric-value up">WDO ▲ direto</span></div>
+        <div class="metric-row"><span class="metric-label">Brent ▲</span><span class="metric-value up">WDO ▲ (custo import.)</span></div>
+        <div class="metric-row"><span class="metric-label">Selic ▲</span><span class="metric-value down">WDO ▼ (carry trade BR)</span></div>
+        <div class="metric-row"><span class="metric-label">Risco BR ▲</span><span class="metric-value up">WDO ▲ (fuga capital)</span></div>
+        <div class="metric-row"><span class="metric-label">Exportação forte</span><span class="metric-value down">WDO ▼ (oferta USD)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL RISCO + GARANTIA ===== -->
+<div id="risco" class="panel">
+  <div class="grid-2">
+    <!-- CALCULADORA -->
+    <div class="card">
+      <div class="card-title">🛡️ CALCULADORA DE RISCO · WIN/WDO</div>
+      <div class="risk-field"><div class="risk-label">Capital Total (R$)</div><input class="risk-input" type="number" id="capital" value="5000"></div>
+      <div class="risk-field"><div class="risk-label">Ativo</div>
+        <select class="risk-input" id="asset">
+          <option value="win">WIN — Mini Índice (R$ 0,20/pt)</option>
+          <option value="wdo">WDO — Mini Dólar (R$ 10/pip)</option>
+        </select>
+      </div>
+      <div class="risk-field"><div class="risk-label">Risco máximo por trade (%)</div><input class="risk-input" type="number" id="riskPct" value="1" step="0.1"></div>
+      <div class="risk-field"><div class="risk-label">Stop em pontos/pips</div><input class="risk-input" type="number" id="stopPts" value="150"></div>
+      <div class="risk-field"><div class="risk-label">Alvo em pontos/pips</div><input class="risk-input" type="number" id="targetPts" value="300"></div>
+      <button class="calc-btn" onclick="calcRisk()">⚡ CALCULAR</button>
+      <div id="results" style="display:none">
+        <div class="result-grid">
+          <div class="result-item"><div class="result-num" id="rRiscoReais">—</div><div class="result-desc">RISCO (R$)</div></div>
+          <div class="result-item"><div class="result-num" id="rContratos">—</div><div class="result-desc">CONTRATOS</div></div>
+          <div class="result-item"><div class="result-num" id="rRR">—</div><div class="result-desc">R:R</div></div>
+          <div class="result-item"><div class="result-num" id="rLucro">—</div><div class="result-desc">POTENCIAL (R$)</div></div>
+        </div>
+        <div id="alertRisco" style="margin-top:10px;font-size:0.75rem;"></div>
+      </div>
+    </div>
+
+    <!-- GARANTIA B3 -->
+    <div class="card warn">
+      <div class="card-title">🔒 GESTÃO DE GARANTIA · REGRAS B3</div>
+      <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:12px;line-height:1.6">
+        Regras da B3 (atualizado fev/2026): <strong style="color:var(--warn)">R$ 155,00 por contrato</strong> de garantia. A corretora bloqueia stop automático em <strong style="color:var(--danger)">70% do valor total de garantia</strong>.
+      </div>
+      <div class="risk-field"><div class="risk-label">Nº de contratos que deseja operar</div><input class="risk-input" type="number" id="gContratos" value="3" oninput="calcGarantia()"></div>
+      <div id="garantiaBox">
+        <div class="garantia-box">
+          <div class="garantia-title">Simulação de garantia e stop automático B3</div>
+          <div class="garantia-grid">
+            <div class="garantia-item garantia-blue"><div class="garantia-val" id="gValorTotal">R$ 465</div><div class="garantia-desc">GARANTIA TOTAL</div></div>
+            <div class="garantia-item garantia-warn"><div class="garantia-val" id="gStopAuto">R$ 325,50</div><div class="garantia-desc">STOP AUTO (70%)</div></div>
+            <div class="garantia-item garantia-ok"><div class="garantia-val" id="gCapitalMin">R$ 465</div><div class="garantia-desc">CAPITAL MÍNIMO</div></div>
+            <div class="garantia-item garantia-info"><div class="garantia-val" id="gStopPts">—</div><div class="garantia-desc">STOP EM PONTOS WIN</div></div>
+          </div>
+          <div id="gAlerta" style="margin-top:10px;font-size:0.72rem;color:var(--warn);line-height:1.5;"></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <ul class="bullet-list">
+        <li>Garantia por contrato: <strong class="highlight-yellow">R$ 155,00</strong> (margem mínima B3)</li>
+        <li>Stop automático: corretora encerra posição quando perda atinge <strong class="highlight-red">70% da garantia total</strong></li>
+        <li>Ex: 5 contratos = R$ 775 garantia. Stop auto em <strong>R$ 542,50</strong> de perda no dia</li>
+        <li>Para operar com segurança: capital alocado deve ser <strong>≥ 3× a garantia total</strong></li>
+        <li>Nunca alocar todo o capital em garantia — manter reserva para oscilação intraday</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TRADING PLAN -->
+  <div class="grid-2">
+    <div class="card green">
+      <div class="card-title">📋 TRADING PLAN · CHECKLIST COMPLETO</div>
+      <ul class="checklist">
+        <li><span class="check-icon check-ok">✓</span><strong>Pré-abertura</strong>: Ler briefing macro, marcar S/R no gráfico, definir viés ORB</li>
+        <li><span class="check-icon check-ok">✓</span><strong>Garantia</strong>: Verificar capital disponível vs. garantia necessária</li>
+        <li><span class="check-icon check-ok">✓</span><strong>ORB 9h–9h30</strong>: Aguardar formação do range + candle de confirmação</li>
+        <li><span class="check-icon check-warn">?</span><strong>Filtros</strong>: Volume + macro + institucional alinhados?</li>
+        <li><span class="check-icon check-warn">?</span><strong>Stop</strong>: Definido ANTES de entrar. Dentro do OR ou extremo oposto</li>
+        <li><span class="check-icon check-warn">?</span><strong>R:R</strong>: Mínimo 1:2 — alvo ≥ 2× o stop</li>
+        <li><span class="check-icon check-warn">?</span><strong>Saída parcial</strong>: 50% no alvo 1 · trailing no restante</li>
+        <li><span class="check-icon check-no">✗</span><strong>Limite diário</strong>: Perder 70% da garantia = parar o dia. Sem revancha.</li>
+      </ul>
+    </div>
+    <div class="card danger">
+      <div class="card-title">🚨 RISCOS DO DIA · 06 NOV 2026</div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:0.65rem;font-family:'Share Tech Mono',monospace;color:var(--danger);letter-spacing:2px;margin-bottom:6px">WIN</div>
+        <ul class="bullet-list">
+          <li id="riscoWin1">—</li>
+          <li id="riscoWin2">—</li>
+          <li id="riscoWin3">Rompimento de 171.793 abre caminho para 170.000</li>
+        </ul>
+      </div>
+      <div class="divider"></div>
+      <div>
+        <div style="font-size:0.65rem;font-family:'Share Tech Mono',monospace;color:var(--warn);letter-spacing:2px;margin-bottom:6px">WDO</div>
+        <ul class="bullet-list">
+          <li id="riscoWdo1">Audiência tarifária 06/JUL — volatilidade cambial crescente</li>
+          <li id="riscoWdo2">Brent US$95+ limita queda do dólar — floor no WDO</li>
+          <li id="riscoWdo3">Ormuz: spike petróleo = pressão direta no câmbio</li>
+        </ul>
+      </div>
+      <div class="signal-box signal-neutral" style="margin-top:10px">
+        <div style="font-size:0.6rem;font-family:'Share Tech Mono',monospace;color:var(--warn)">STOP AUTO B3 · LEMBRETE</div>
+        <div class="signal-label" style="font-size:0.75rem;margin-top:4px">70% DA GARANTIA</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL AGENDA ===== -->
+<div id="agenda" class="panel">
+  <div class="card">
+    <div class="card-title">📅 AGENDA ECONÔMICA · SEMANA 02–06 JUN 2026 · DESATUALIZADA (não veio no print)</div>
+    <table class="agenda-table">
+      <thead><tr><th>DATA/HORA</th><th>EVENTO</th><th>PAÍS</th><th>IMP.</th><th>ANTERIOR</th><th>CONSENSO</th><th>WIN</th><th>WDO</th></tr></thead>
+      <tbody>
+        <tr><td style="font-family:'Share Tech Mono',monospace;font-size:0.72rem">02/JUN 08h</td><td>IPC Europa</td><td>🇪🇺</td><td class="imp-med">MÉDIA</td><td>2,2%</td><td>2,1%</td><td class="neutral">Neutro</td><td class="neutral">EUR/USD</td></tr>
+        <tr><td style="font-family:'Share Tech Mono',monospace;font-size:0.72rem">03/JUN Dia</td><td><strong>Repercussão Tarifas EUA-BR 25%</strong></td><td>🇺🇸🇧🇷</td><td class="imp-high">ALTA 🔴</td><td>10%</td><td>25% prop.</td><td class="down">Baixista</td><td class="up">Dólar def.</td></tr>
+        <tr><td style="font-family:'Share Tech Mono',monospace;font-size:0.72rem">Semana</td><td>Payroll EUA (NFP)</td><td>🇺🇸</td><td class="imp-high">ALTA 🔴</td><td>177k</td><td>~165k</td><td class="neutral">Indireto</td><td class="up">Forte WDO</td></tr>
+        <tr><td style="font-family:'Share Tech Mono',monospace;font-size:0.72rem">16–17 JUN</td><td><strong>COPOM · Decisão Selic</strong></td><td>🇧🇷</td><td class="imp-high">ALTA 🔴</td><td>13,25%</td><td>13,25%</td><td class="neutral">Vol. alta</td><td class="down">BRL apre.</td></tr>
+        <tr><td style="font-family:'Share Tech Mono',monospace;font-size:0.72rem">06 JUL</td><td>Audiência Pública Tarifas</td><td>🇺🇸🇧🇷</td><td class="imp-high">ALTA 🔴</td><td>—</td><td>—</td><td class="down">Volat.</td><td class="up">Volat. WDO</td></tr>
+        <tr><td style="font-family:'Share Tech Mono',monospace;font-size:0.72rem">15 JUL</td><td><strong>Decisão final Trump · Tarifas</strong></td><td>🇺🇸🇧🇷</td><td class="imp-high">ALTA 🔴</td><td>—</td><td>—</td><td class="down">Sell-off</td><td class="up">Spike WDO</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">🏦 BANCOS CENTRAIS</div>
+      <div class="metric-row"><span class="metric-label">FED (EUA)</span><span class="metric-value neutral">Hawkish · dados-dependente</span></div>
+      <div class="metric-row"><span class="metric-label">BCB (Brasil)</span><span class="metric-value neutral">Selic 13,25% · COPOM 16/JUN</span></div>
+      <div class="metric-row"><span class="metric-label">BCE (Europa)</span><span class="metric-value neutral">Monitorar CPI</span></div>
+      <div class="metric-row"><span class="metric-label">BoJ (Japão)</span><span class="metric-value up">USD/JPY alvo 152</span></div>
+      <div class="metric-row"><span class="metric-label">PBoC (China)</span><span class="metric-value up">Shanghai +0,43%</span></div>
+    </div>
+    <div class="card warn"><div class="card-title">⚠️ EVENTOS CRÍTICOS</div>
+      <ul class="bullet-list">
+        <li><span class="tag tag-red">15 JUL</span> Decisão Trump tarifas. Risco máximo para câmbio e exportadoras.</li>
+        <li><span class="tag tag-yellow">16-17 JUN</span> COPOM. Manutenção 13,25% esperada. Surpresa = volatilidade extrema.</li>
+        <li><span class="tag tag-red">ORMUZ</span> Tensão Irã-Israel-EUA. Brent US$95+. Pressão inflacionária global.</li>
+        <li><span class="tag tag-yellow">FOCUS</span> 12ª alta IPCA 2026. Meta descumprida. Credibilidade BCB em xeque.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL GRÁFICO ===== -->
+<div id="grafico" class="panel">
+
+  <!-- UPLOAD + ANÁLISE GRÁFICO -->
+  <div class="card purple">
+    <div class="card-title">📈 ANÁLISE GRÁFICA · PRINT DO SEU TRADINGVIEW</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.7;margin-bottom:12px">
+      Envie o <strong style="color:#a855f7">print do gráfico WIN/WDO</strong> do seu TradingView. A IA lê o gráfico visualmente e entrega análise técnica completa: estrutura, S/R, Order Blocks, FVG, médias, VWAP e setup.
+    </div>
+    <div class="chart-upload-box" id="chartUploadBox" onclick="document.getElementById('chartFileInput').click()">
+      <input type="file" id="chartFileInput" accept="image/*" onchange="onChartSelected(event)" style="display:none">
+      <div class="chart-icon">📊</div>
+      <div class="chart-upload-text">CLIQUE PARA ENVIAR O PRINT DO GRÁFICO</div>
+      <div style="font-size:0.58rem;color:var(--text-dim);margin-top:6px;font-family:'Share Tech Mono',monospace;letter-spacing:2px">WIN · WDO · QUALQUER ATIVO · QUALQUER TIMEFRAME</div>
+    </div>
+    <img id="chartPreview" class="chart-preview" alt="Gráfico carregado">
+    <div style="display:flex;align-items:center;margin-top:8px;gap:8px" id="chartControls" style="display:none">
+      <button class="chart-btn" id="btnAnalisarChart" onclick="analisarGrafico()" style="display:inline-block;flex:1">
+        🔮 ANALISAR COM IA TRADER
+      </button>
+      <button class="chart-clear" onclick="limparGrafico()">✕ limpar</button>
+    </div>
+    <div class="chart-analysis-box" id="chartAnalysis"></div>
+    <div class="chart-anot" id="chartAnot" hidden>
+      <div class="chart-anot-head">
+        <span>🖊️ GRÁFICO ANOTADO PELA IA</span>
+        <button class="chart-clear" id="btnBaixarAnot" type="button" hidden>⬇ salvar imagem</button>
+      </div>
+      <div class="chart-anot-status" id="chartAnotStatus">Desenhando as marcações no seu gráfico...</div>
+      <img id="chartAnotImg" alt="Gráfico com as marcações da IA" hidden>
+      <ul class="chart-anot-legenda" id="chartLegenda"></ul>
+      <div class="dados-nota">As posições vêm da leitura do eixo de preços do print e são aproximadas. Vale o preço escrito em cada etiqueta. Não é recomendação de investimento.</div>
+    </div>
+    <div class="fonte-bar" style="margin-top:10px">
+      <span class="fonte-label">análise via</span>
+      <span class="fonte-tag ict">ICT Smart Money</span>
+      <span class="fonte-tag ict">Trader Camaleão</span>
+      <span class="fonte-tag">Dow · Elliott · VWAP</span>
+      <span class="fonte-tag ai">Claude Vision</span>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📐 O QUE A IA ANALISA NO GRÁFICO</div>
+      <ul class="bullet-list">
+        <li><span class="tag tag-purple">ESTRUTURA</span> Tendência (HH/HL ou LH/LL), Break of Structure (BOS), Change of Character (CHoCH)</li>
+        <li><span class="tag tag-blue">S/R</span> Suportes, resistências, máximas/mínimas relevantes, consolidações</li>
+        <li><span class="tag tag-purple">ICT</span> Order Blocks, Fair Value Gaps, Liquidity Zones buy/sell-side</li>
+        <li><span class="tag tag-green">MÉDIAS</span> MM200, MM50, MM9 — posição do price em relação a cada uma</li>
+        <li><span class="tag tag-blue">VWAP</span> Price acima ou abaixo — bias institucional intraday</li>
+        <li><span class="tag tag-yellow">ORB</span> Identificar range de abertura se visível</li>
+        <li><span class="tag tag-green">SETUP</span> Entrada, stop, alvo ou "aguardar"</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <div class="card-title">💡 PASSO A PASSO</div>
+      <ul class="bullet-list">
+        <li><strong>1.</strong> Abra o TradingView → gráfico <strong>WINM26</strong> ou <strong>WDOM26</strong></li>
+        <li><strong>2.</strong> Ative: MM200, MM50, VWAP, Volume. Opcional: adicionar Fib e S/R manualmente</li>
+        <li><strong>3.</strong> Tire print da tela completa (quanto mais visível, melhor a análise)</li>
+        <li><strong>4.</strong> Clique na área de upload acima e selecione o arquivo</li>
+        <li><strong>5.</strong> Clique em <strong style="color:#a855f7">ANALISAR COM IA TRADER</strong> e aguarde ~10s</li>
+      </ul>
+      <div style="margin-top:10px;padding:8px;background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.2);border-radius:6px;font-size:0.72rem;color:var(--text-dim);line-height:1.5">
+        💡 <strong style="color:var(--accent2)">Dica pro:</strong> Print o gráfico de <strong>5min</strong> e depois o de <strong>15min</strong> e envie os dois juntos para análise multi-timeframe.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== PANEL FONTES ===== -->
+<div id="fontes" class="panel">
+
+  <div class="card">
+    <div class="card-title">🔗 TRANSPARÊNCIA · DE ONDE VÊM AS INFORMAÇÕES</div>
+    <div style="font-size:0.78rem;color:var(--text-dim);line-height:1.7;margin-bottom:4px">
+      Toda análise do IA TRADER é construída a partir de múltiplas fontes verificadas, cruzadas e contextualizadas pelo Método Trader Camaleão. Abaixo o mapa completo de fontes por categoria.
+    </div>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- MACRO / ECONOMIA -->
+    <div class="card danger">
+      <div class="card-title">🌐 MACRO & ECONOMIA BRASIL/EUA</div>
+      <div class="metric-row"><span class="metric-label">BCB · Relatório Focus</span><span class="metric-value neutral">bcb.gov.br</span></div>
+      <div class="metric-row"><span class="metric-label">Valor Econômico</span><span class="metric-value neutral">valor.globo.com</span></div>
+      <div class="metric-row"><span class="metric-label">InfoMoney</span><span class="metric-value neutral">infomoney.com.br</span></div>
+      <div class="metric-row"><span class="metric-label">Investing.com</span><span class="metric-value neutral">br.investing.com</span></div>
+      <div class="metric-row"><span class="metric-label">Genial Analisa</span><span class="metric-value neutral">genialanalisa.com.br</span></div>
+      <div class="metric-row"><span class="metric-label">Finance Juice</span><span class="metric-value neutral">financejuice.com</span></div>
+      <div class="metric-row"><span class="metric-label">CNBC</span><span class="metric-value neutral">cnbc.com</span></div>
+      <div class="metric-row"><span class="metric-label">Bloomberg</span><span class="metric-value neutral">bloomberg.com</span></div>
+      <div style="margin-top:8px;font-size:0.68rem;color:var(--text-dim);padding:7px;background:rgba(255,56,96,0.05);border-radius:5px;border:1px solid rgba(255,56,96,0.1)">
+        Dados de IPCA, Selic, PIB, Focus, COPOM, payroll EUA, CPI, PMI, FOMC
+      </div>
+    </div>
+
+    <!-- GEOPOLÍTICA -->
+    <div class="card warn">
+      <div class="card-title">🗺️ GEOPOLÍTICA</div>
+      <div class="metric-row"><span class="metric-label">CNN Brasil</span><span class="metric-value neutral">cnnbrasil.com.br</span></div>
+      <div class="metric-row"><span class="metric-label">O Globo</span><span class="metric-value neutral">oglobo.globo.com</span></div>
+      <div class="metric-row"><span class="metric-label">Revista Geopolítica</span><span class="metric-value neutral">revistageopolitica.com.br</span></div>
+      <div class="metric-row"><span class="metric-label">Revista Intellector</span><span class="metric-value neutral">intellector.com.br</span></div>
+      <div class="metric-row"><span class="metric-label">Political Geography</span><span class="metric-value neutral">journals.elsevier.com</span></div>
+      <div class="metric-row"><span class="metric-label">Brasil de Fato</span><span class="metric-value neutral">brasildefato.com.br</span></div>
+      <div class="metric-row"><span class="metric-label">Outriterre / Confins</span><span class="metric-value neutral">revistas acadêmicas</span></div>
+      <div style="margin-top:8px;font-size:0.68rem;color:var(--text-dim);padding:7px;background:rgba(255,184,0,0.05);border-radius:5px;border:1px solid rgba(255,184,0,0.1)">
+        Tensões geopolíticas, tarifas, eleições, sanções, conflitos que movem mercados
+      </div>
+    </div>
+
+    <!-- COMMODITIES -->
+    <div class="card green">
+      <div class="card-title">🛢️ COMMODITIES</div>
+      <div class="metric-row"><span class="metric-label">Investing.com · Futuros</span><span class="metric-value neutral">br.investing.com/commodities</span></div>
+      <div class="metric-row"><span class="metric-label">TradingView</span><span class="metric-value neutral">br.tradingview.com</span></div>
+      <div class="metric-row"><span class="metric-label">Google Finanças</span><span class="metric-value neutral">google.com/finance</span></div>
+      <div class="metric-row"><span class="metric-label">Trademap</span><span class="metric-value neutral">trademap.org</span></div>
+      <div class="metric-row"><span class="metric-label">Hub3</span><span class="metric-value neutral">hub3.com.br</span></div>
+      <div class="metric-row"><span class="metric-label">Bússola do Investidor</span><span class="metric-value neutral">bussoladoinvestidor.com.br</span></div>
+      <div class="metric-row"><span class="metric-label">Kinvo</span><span class="metric-value neutral">kinvo.com.br</span></div>
+      <div style="margin-top:8px;font-size:0.68rem;color:var(--text-dim);padding:7px;background:rgba(0,255,136,0.04);border-radius:5px;border:1px solid rgba(0,255,136,0.1)">
+        Petróleo Brent/WTI, minério de ferro, soja, milho, metais — correlação com WIN/WDO
+      </div>
+    </div>
+
+    <!-- CÂMBIO / MOEDAS -->
+    <div class="card">
+      <div class="card-title">💱 CÂMBIO & MOEDAS</div>
+      <div class="metric-row"><span class="metric-label">BCB · PTAX</span><span class="metric-value neutral">bcb.gov.br/conversao</span></div>
+      <div class="metric-row"><span class="metric-label">Investing · Forex</span><span class="metric-value neutral">br.investing.com/currencies</span></div>
+      <div class="metric-row"><span class="metric-label">TradingView · DXY</span><span class="metric-value neutral">br.tradingview.com</span></div>
+      <div class="metric-row"><span class="metric-label">Google Finanças · FX</span><span class="metric-value neutral">google.com/finance</span></div>
+      <div class="metric-row"><span class="metric-label">FED · FOMC statements</span><span class="metric-value neutral">federalreserve.gov</span></div>
+      <div class="metric-row"><span class="metric-label">BCE · Press releases</span><span class="metric-value neutral">ecb.europa.eu</span></div>
+      <div style="margin-top:8px;font-size:0.68rem;color:var(--text-dim);padding:7px;background:rgba(0,212,255,0.04);border-radius:5px;border:1px solid rgba(0,212,255,0.1)">
+        DXY, USD/BRL, EUR/USD, USD/JPY, paridades que afetam o WDO
+      </div>
+    </div>
+
+    <!-- GRÁFICO / TÉCNICA -->
+    <div class="card purple">
+      <div class="card-title">📐 ANÁLISE GRÁFICA & TÉCNICA</div>
+      <div class="metric-row"><span class="metric-label">TradingView WIN ideias</span><span class="metric-value up">✅ lido em cada atualização</span></div>
+      <div class="metric-row"><span class="metric-label">TradingView WDO ideias</span><span class="metric-value up">✅ lido em cada atualização</span></div>
+      <div class="metric-row"><span class="metric-label">Notícias TV WIN/WDO</span><span class="metric-value up">✅ varrido em cada atualização</span></div>
+      <div class="metric-row"><span class="metric-label">Comunidade · S/R publicados</span><span class="metric-value neutral">regiões importantes do dia</span></div>
+      <div class="metric-row"><span class="metric-label">ICT · Inner Circle Trader</span><span class="metric-value neutral">metodologia 2022</span></div>
+      <div class="metric-row"><span class="metric-label">ORB · LiteFinance</span><span class="metric-value neutral">litefinance.org · backtest 2026</span></div>
+      <div class="metric-row"><span class="metric-label">ORB · TradeSwing</span><span class="metric-value neutral">tradethatswing.com</span></div>
+      <div class="metric-row"><span class="metric-label">Teoria de Dow</span><span class="metric-value neutral">clássico</span></div>
+      <div class="metric-row"><span class="metric-label">Ondas de Elliott</span><span class="metric-value neutral">clássico</span></div>
+      <div style="margin-top:8px;font-size:0.68rem;color:var(--text-dim);padding:7px;background:rgba(168,85,247,0.05);border-radius:5px;border:1px solid rgba(168,85,247,0.1)">
+        ⚠️ Gráfico ao vivo do TV não é acessível — apenas páginas públicas. Envie o print para análise visual.
+      </div>
+    </div>
+
+    <!-- IA / MÉTODO -->
+    <div class="card">
+      <div class="card-title">🤖 INTELIGÊNCIA ARTIFICIAL & MÉTODO</div>
+      <div class="metric-row"><span class="metric-label">Claude · Anthropic</span><span class="metric-value up">claude-sonnet-4 · busca web</span></div>
+      <div class="metric-row"><span class="metric-label">Método Trader Camaleão</span><span class="metric-value neutral">Macro + Fluxo + Gráfico</span></div>
+      <div class="metric-row"><span class="metric-label">Smart Money Concepts</span><span class="metric-value neutral">ICT 2022 methodology</span></div>
+      <div class="metric-row"><span class="metric-label">ORB Global Best Practice</span><span class="metric-value neutral">backtests 2025–2026</span></div>
+      <div class="metric-row"><span class="metric-label">Gestão de Risco B3</span><span class="metric-value neutral">R$155/contrato · 70% stop auto</span></div>
+      <div class="metric-row"><span class="metric-label">Atualização</span><span class="metric-value neutral" id="fonteAtualizacaoIA">—</span></div>
+      <div style="margin-top:8px;font-size:0.68rem;color:var(--text-dim);padding:7px;background:rgba(0,212,255,0.04);border-radius:5px;border:1px solid rgba(0,212,255,0.1)">
+        A IA cruza todas as fontes acima em tempo real ao clicar em "Atualizar Mercado". Cada resposta indica as fontes consultadas naquele momento.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="card danger">
+    <div class="card-title">⚠️ AVISO IMPORTANTE · DISCLAIMER</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);line-height:1.8">
+      As informações e análises geradas pelo <strong style="color:var(--accent)">IA TRADER PRO</strong> têm caráter exclusivamente <strong>educacional e informativo</strong>. Não constituem recomendação de compra ou venda de ativos. O mercado financeiro envolve riscos significativos, incluindo a perda total do capital investido.<br><br>
+      <strong style="color:var(--warn)">Sempre:</strong> Consulte um analista credenciado (CNPI) · Respeite seu plano de trading · Gerencie seu risco · Nunca opere com capital que não pode perder.<br><br>
+      <span style="font-size:0.65rem;color:var(--text-dim)">Os dados exibidos são atualizados no momento em que você clica "Atualizar Mercado" e podem não refletir o preço exato em tempo real. Cotações ao vivo requerem plataformas com feed de dados certificado (Profit, MT5, etc).</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== PANEL PROMPTS ===== -->
+<div id="prompts" class="panel">
+  <div class="card">
+    <div class="card-title">⚡ PROMPT MESTRE v2 · MTC + ORB + ICT + GARANTIA</div>
+    <div class="prompt-box" id="pMestre">
+Você é o IA TRADER PRO — agente de day trade WIN/WDO com metodologia híbrida.
+
+## METODOLOGIA
+1. TRADER CAMALEÃO (MTC): Macro (BCI,IFNC,IMAT,DXY,DIs) + Fluxo (VAP,SuperDOM,Tape) + Gráfico (Dow,Elliott,MM200,VWAP,S/R)
+2. ORB (Opening Range Breakout): Janela 9h–9h30 B3. Entrada só em candle de 5min FECHADO fora do range. Filtros: volume > média 5 candles, delta positivo, macro alinhada, institucional confirmado.
+3. SMART MONEY ICT: Order Blocks, Fair Value Gaps, Liquidity Sweeps, Power of Three (PO3), Breaker Blocks.
+4. GESTÃO: R$155 garantia/contrato. Stop auto em 70% da garantia total. R:R mínimo 1:2.
+
+## SUPORTES E RESISTÊNCIAS (sempre incluir)
+WIN: máx/mín dia ant., VWAP, MM200, MM50, números redondos (mil em mil), Fibonacci 61.8%
+WDO: máx/mín dia ant., PTAX, VWAP, números redondos, Fib 50%
+ICT: identificar Order Blocks, FVGs e zonas de liquidez (buy-side acima de máximas iguais, sell-side abaixo de mínimas iguais)
+
+## POSICIONAMENTO INSTITUCIONAL
+Ranking corretoras, saldo comprador/vendedor, VAP delta, absorção em S/R, lotes grandes no Tape
+
+## MOMENTOS DE OPERAR vs ESPERAR
+OPERAR: 9h–11h prime, 13h–15h tarde prime, confluência 3+ fatores
+ESPERAR: 11h–13h (liquidez baixa), candle não fechou, fakeout recente, dado econômico <20min, volume abaixo da média
+
+## FORMATO RESPOSTA (WhatsApp)
+🔔/🎯/🔥/😴/⚡ *[FASE] · [HORA]*
+📌 *MACRO* (3 pontos)
+📐 *S/R* WIN: R1=[x] R2=[x] S1=[x] S2=[x] VWAP=[x] | OB=[x] FVG=[x]
+📐 *S/R* WDO: R1=[x] S1=[x] VWAP=[x]
+🏦 *INSTITUCIONAL* WIN: [comprador/vendedor dominante] | WDO: [idem]
+🎯 *ORB/SETUP WIN* Viés:[C/V/N] Entrada:[x] Stop:[x] Alvo:[x] R:R:[x]
+🎯 *ORB/SETUP WDO* Viés:[C/V/N] Entrada:[x] Stop:[x] Alvo:[x]
+⏰ *OPERAR AGORA?* WIN:[SIM/NÃO — motivo] | WDO:[SIM/NÃO — motivo]
+⚠️ *RISCO* [principal ameaça]
+🦎 *MTC* Confluência:[ALINHADOS/DIVERGENTES/PARCIAL]
+<button class="copy-btn" onclick="copyPrompt('pMestre')">[ COPIAR ]</button>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card green">
+      <div class="card-title">⚡ PROMPT ORB · ABERTURA</div>
+      <div class="prompt-box" id="pORB">
+IA TRADER, janela ORB ATIVA — [HORA]
+
+Execute análise ORB completa:
+1. OR High e OR Low dos primeiros 15min
+2. Tamanho do range (pontos WIN / pips WDO)
+3. Direção do rompimento provável + justificativa
+4. Filtros: Volume✓/✗ | Macro✓/✗ | Institucional✓/✗ | FVG/OB✓/✗
+5. ENTRY, STOP, ALVO 1, ALVO 2, R:R
+6. Risco de fakeout/liquidity sweep hoje?
+7. VEREDICTO: 🟢OPERAR / 🟡AGUARDAR / 🔴NÃO OPERAR
+<button class="copy-btn" onclick="copyPrompt('pORB')">[ COPIAR ]</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ PROMPT S/R + ICT</div>
+      <div class="prompt-box" id="pSR">
+IA TRADER, mapeie os níveis críticos para hoje:
+
+WIN:
+- R1, R2, R3 (resistências)
+- S1, S2, S3 (suportes)
+- VWAP atual
+- Order Block Bearish e Bullish
+- Fair Value Gap ativo
+- Zona de Liquidity (buy-side e sell-side)
+
+WDO:
+- Mesmos níveis acima
+- PTAX referência
+- Correlação DXY atual
+
+Institucional:
+- Quem está comprando/vendendo WIN agora?
+- Quem está comprando/vendendo WDO?
+- Corretoras no topo do ranking cada lado
+<button class="copy-btn" onclick="copyPrompt('pSR')">[ COPIAR ]</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ─── IA via claude.ai (capability "sample") ───
+let _iaSamplePromise = null;
+function iaSample() {
+  if (!_iaSamplePromise) {
+    _iaSamplePromise = (window.claude && typeof window.claude.use === 'function')
+      ? window.claude.use('sample').catch(() => null)
+      : Promise.resolve(null);
+  }
+  return _iaSamplePromise;
+}
+function iaErroMsg(e) {
+  const c = e && e.code;
+  if (c === 'indisponivel') return 'A IA só funciona com o app aberto no claude.ai.';
+  if (c === 'not_granted' || c === 'sampling_disabled' || c === 'not_declared') return 'O uso do Claude não foi permitido para este app. Libere nas permissões do artefato e recarregue.';
+  if (c === 'rate_limited') return 'Limite de uso do Claude atingido. Tente de novo em alguns minutos.';
+  if (c === 'session_expired') return 'Sua sessão no claude.ai expirou. Entre de novo e recarregue.';
+  if (c === 'invalid_json') return 'A IA respondeu fora do formato esperado. Toque em atualizar de novo.';
+  if (c === 'image_rejected') return 'Imagem não aceita. Envie um PNG ou JPG menor.';
+  if (c === 'refused') return 'O Claude recusou esta solicitação. Ajuste os dados e tente de novo.';
+  if (c === 'cancelled') return 'Análise cancelada.';
+  return 'Falha de conexão com a IA. Tente de novo.';
+}
+const DADOS_PRINT = {"ticker": {"ibovespa": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "win": {"val": "170.235", "chg": "▲ +1,64%", "dir": "up"}, "wdo": {"val": "5.513,5", "chg": "▼ -0,31% (DOLFUT)", "dir": "down"}, "brent": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "wti": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "selic": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "ipca": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "sp500": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "dxy": {"val": "—", "chg": "sem dado no print", "dir": "neutral"}, "vwap_win": {"val": "168.687", "chg": "VWAP D · MME21 168.887", "dir": "neutral"}}, "macro": {"alerta1": "Dados de 06/11 12:00 lidos do print do Profit (WINZ26 15min). Macro, commodities e agenda não aparecem no print.", "alerta2": "WIN +1,64% no dia; dólar futuro -0,31% (5.513,5) e dólar pronto -0,29% (5,4615): relação inversa WIN × dólar respeitada.", "alerta3": "Pressão de agressão no gráfico: 60% compradora (97,47k) × 40% vendedora (64,81k).", "ipca_val": "—", "selic_val": "—", "copom_data": "—", "pib": "—", "ibov_fech": "—", "brent_val": "—", "wti_val": "—", "brent_sinal": "—", "brent_driver": "—", "dxy_val": "R$ 5,4615 ▼ -0,29% (pronto)"}, "sr_win": {"r3": "171.400", "r3_tipo": "máx. 30/out (aprox.)", "r2": "171.000", "r2_tipo": "máx. 05/11", "r1": "170.435", "r1_tipo": "máx. do dia", "vwap": "168.687", "ob_bear": "170.600–171.000", "s1": "170.000", "s1_tipo": "rompimento · máx. 04/11", "s2": "169.340", "s2_tipo": "MME9 15min", "s3": "168.887", "s3_tipo": "MME21 15min", "s4": "168.687", "s4_tipo": "VWAP D", "ob_bull": "167.400–167.900", "mm200": "—", "mm50": "—", "fib618": "168.560", "fvg_zona": "—", "liq_buyside": "171.000 / 171.400", "liq_sellside": "167.400"}, "sr_wdo": {"r3": "—", "r2": "—", "r1": "—", "vwap": "—", "ob_bear": "—", "s1": "—", "s2": "—", "s3": "—", "ob_bull": "—", "ptax": "—", "fib50": "—", "fvg_zona": "—"}, "orb": {"win_or_high": "~168.500", "win_or_low": "~167.400", "win_range": "~1.100 pts", "win_tipo": "MÉDIO → normal", "win_compra_entrada": "168.555", "win_compra_stop": "167.950", "win_compra_alvo1": "169.655", "win_compra_alvo2": "170.755", "win_venda_entrada": "167.345", "win_venda_stop": "167.950", "win_venda_alvo1": "166.245", "wdo_or_high": "—", "wdo_or_low": "—", "wdo_range": "—", "wdo_compra_entrada": "—", "wdo_compra_stop": "—", "wdo_compra_alvo1": "—", "wdo_venda_entrada": "—", "wdo_venda_stop": "—", "wdo_venda_alvo1": "—", "fakeout_risco": "ORB de 06/11 com níveis aproximados do gráfico de 15 min: a compra acima de 168.555 já bateu o alvo 1 (169.655) e o preço vai em direção ao alvo 2 (170.755). A venda não disparou."}, "mtc": {"confluencia": "ALINHADOS", "operar_win": "SIM, NO PULLBACK", "motivo_win": "tendência de alta forte, agressão 60% compradora, preço acima das médias 9/21 e da VWAP D. Esticado: esperar recuo a 170.000 ou à MME9 (169.340).", "operar_wdo": "AGUARDAR", "motivo_wdo": "sem gráfico do WDO. Dólar -0,31% coerente com WIN em alta.", "risco_dia": "Preço ~1.550 pts acima da VWAP D (168.687): comprar no topo arrisca devolução rápida."}, "riscos": {"win_r1": "Preço esticado ~1.550 pts acima da VWAP D: entrar no topo arrisca devolução.", "win_r2": "Resistência 170.950–171.000 (máx. 05/11, OB de baixa) e depois 171.400.", "win_r3": "Perder 170.000 abre caminho até 169.340 (MME9).", "wdo_r1": "Sem gráfico do WDO no print. Hoje seus 3 trades no WDO somaram -R$ 215 bruto.", "wdo_r2": "—", "wdo_r3": "—", "oport1": "Pullback em 170.000 ou na MME9 (169.340) com reação compradora.", "oport2": "Fechamento de 15 min acima de 170.450 → 171.000.", "oport3": "Agressão 60% compradora sustenta o viés. Vigiar se o saldo virar."}};
+aplicarDados(DADOS_PRINT);
+// rascunho dos dados colados (só neste navegador)
+(function() {
+  const ta = document.getElementById('dadosMercado');
+  try { const s = localStorage.getItem('iaTraderDados'); if (s) ta.value = s; } catch (e) {}
+  ta.addEventListener('input', () => { try { localStorage.setItem('iaTraderDados', ta.value); } catch (e) {} });
+  iaSample().then(s => {
+    if (!s) document.getElementById('iaStatus').textContent = 'IA indisponível aqui: abra o app no claude.ai para usar Atualizar Mercado e Análise Gráfica.';
+  });
+})();
+// TABS
+function showTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+// COPY
+function copyPrompt(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace(/\[\s*COPIAR\s*\]/g,'').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = el.querySelector('.copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '[ COPIADO! ]';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+// CALC RISCO
+function calcRisk() {
+  const capital = parseFloat(document.getElementById('capital').value) || 0;
+  const asset = document.getElementById('asset').value;
+  const riskPct = parseFloat(document.getElementById('riskPct').value) || 1;
+  const stopPts = parseFloat(document.getElementById('stopPts').value) || 1;
+  const targetPts = parseFloat(document.getElementById('targetPts').value) || 1;
+
+  const tickVal = asset === 'win' ? 0.20 : 10;
+  const GARANTIA_POR_CONTRATO = 155;
+  const STOP_AUTO_PCT = 0.70;
+
+  const riskReais = capital * (riskPct / 100);
+  const riskPerContract = stopPts * tickVal;
+  const contractsByRisk = Math.floor(riskReais / riskPerContract);
+
+  // Limitar pelo stop automático da garantia
+  const maxContratosPorGarantia = Math.floor(capital / GARANTIA_POR_CONTRATO);
+  const stopAutoTotal = maxContratosPorGarantia * GARANTIA_POR_CONTRATO * STOP_AUTO_PCT;
+  const contractsByGuarantee = Math.floor(stopAutoTotal / (stopPts * tickVal));
+
+  const contracts = Math.max(0, Math.min(contractsByRisk, contractsByGuarantee, maxContratosPorGarantia));
+  const rratio = (targetPts / stopPts).toFixed(1);
+  const potProfit = contracts * targetPts * tickVal;
+  const garantiaTotal = contracts * GARANTIA_POR_CONTRATO;
+  const stopAutoReais = garantiaTotal * STOP_AUTO_PCT;
+
+  document.getElementById('rRiscoReais').textContent = 'R$ ' + riskReais.toFixed(0);
+  document.getElementById('rContratos').textContent = contracts > 0 ? contracts + 'x' : '< 1';
+  document.getElementById('rRR').className = 'result-num' + (parseFloat(rratio) >= 2 ? '' : ' warn');
+  document.getElementById('rRR').textContent = '1:' + rratio;
+  document.getElementById('rLucro').textContent = 'R$ ' + potProfit.toFixed(0);
+  document.getElementById('results').style.display = 'block';
+
+  const alertEl = document.getElementById('alertRisco');
+  let msg = '';
+  if (contracts === 0) {
+    msg = '<span style="color:var(--danger)">⚠️ Capital insuficiente para este stop com 1 contrato</span>';
+  } else if (parseFloat(rratio) < 2) {
+    msg = '<span style="color:var(--danger)">⚠️ R:R abaixo de 1:2 — setup não recomendado pelo MTC</span>';
+  } else {
+    msg = `<span style="color:var(--accent2)">✅ Setup válido · Garantia: R$ ${garantiaTotal} · Stop auto B3: R$ ${stopAutoReais.toFixed(0)}</span>`;
+  }
+  if (contractsByRisk > contractsByGuarantee && contractsByGuarantee > 0) {
+    msg += `<br><span style="color:var(--warn)">⚠️ Contratos limitados pelo stop automático da garantia (70% = R$ ${stopAutoReais.toFixed(0)})</span>`;
+  }
+  alertEl.innerHTML = msg;
+
+  // Atualizar também a aba garantia
+  document.getElementById('gContratos').value = contracts;
+  calcGarantia();
+}
+
+// CALC GARANTIA
+function calcGarantia() {
+  const n = parseInt(document.getElementById('gContratos').value) || 1;
+  const GARANTIA = 155;
+  const STOP_PCT = 0.70;
+  const total = n * GARANTIA;
+  const stopAuto = total * STOP_PCT;
+  const stopPtsWIN = (stopAuto / 0.20).toFixed(0);
+
+  document.getElementById('gValorTotal').textContent = 'R$ ' + total.toLocaleString('pt-BR');
+  document.getElementById('gStopAuto').textContent = 'R$ ' + stopAuto.toFixed(2).replace('.',',');
+  document.getElementById('gCapitalMin').textContent = 'R$ ' + (total * 3).toLocaleString('pt-BR');
+  document.getElementById('gStopPts').textContent = stopPtsWIN + ' pts';
+
+  const alertEl = document.getElementById('gAlerta');
+  alertEl.innerHTML = `
+    ⚠️ Com ${n} contrato${n>1?'s':''}, sua corretora fecha posição automaticamente ao atingir <strong style="color:var(--danger)">R$ ${stopAuto.toFixed(2).replace('.',',')} de perda</strong> no dia.<br>
+    📌 Equivale a aproximadamente <strong style="color:var(--warn)">${stopPtsWIN} pontos</strong> de stop no WIN por contrato.<br>
+    💡 Capital mínimo recomendado: <strong style="color:var(--accent2)">R$ ${(total*3).toLocaleString('pt-BR')}</strong> (3× a garantia total).
+  `;
+}
+
+
+// =============================================
+// SISTEMA DE ATUALIZAÇÃO VIA CLAUDE API
+// =============================================
+
+const SYSTEM_PROMPT_UPDATE = 'Você é o IA TRADER PRO — agente especializado em day trade WIN/WDO na B3.\nMetodologia: Trader Camaleão (MTC) + ORB + Smart Money ICT.\nCONTEXTO: você não tem acesso à internet; trabalhe só com os dados que o trader informar e sintetize em confluência com MTC.\nResponda SOMENTE em JSON válido, sem markdown, sem explicações fora do JSON.\nRetorne exatamente este schema:\n{\n  "timestamp": "HH:MM",\n  "data": "DD/MMM",\n  "fase": "PRE_ABERTURA|ORB_WINDOW|MANHA_PRIME|MEIO_DIA|TARDE_PRIME|FECHAMENTO|AFTER",\n  "ticker": {\n    "ibovespa": {"val":"000.000","chg":"+0,00%","dir":"up|down|neutral"},\n    "win": {"val":"000.000","chg":"+0,00%","dir":"up|down|neutral"},\n    "wdo": {"val":"0,00","chg":"+0,00%","dir":"up|down|neutral"},\n    "brent": {"val":"00,00","chg":"+0,00%","dir":"up|down|neutral"},\n    "wti": {"val":"00,00","chg":"+0,00%","dir":"up|down|neutral"},\n    "selic": {"val":"00,00%","chg":"COPOM DD/MMM","dir":"neutral"},\n    "ipca": {"val":"0,00%","chg":"tendência","dir":"up|down|neutral"},\n    "sp500": {"val":"00.000","chg":"+0,00%","dir":"up|down|neutral"},\n    "dxy": {"val":"000","chg":"tendência","dir":"up|down|neutral"},\n    "vwap_win": {"val":"000.000","chg":"referência","dir":"neutral"}\n  },\n  "macro": {\n    "alerta1": "texto do alerta geopolítico/macro principal",\n    "alerta2": "texto do segundo ponto macro",\n    "alerta3": "texto do terceiro ponto macro",\n    "ipca_val": "0,00%",\n    "selic_val": "00,00%",\n    "copom_data": "DD-DD/MMM",\n    "pib": "+0,00%",\n    "usd_brl": "0,00",\n    "ibov_fech": "000.000 pts",\n    "brent_val": "US$ 00,00",\n    "wti_val": "US$ 00,00",\n    "brent_sinal": "COMPRA|VENDA|NEUTRO",\n    "brent_driver": "driver principal",\n    "dxy_val": "000",\n    "dxy_tend": "tendência DXY",\n    "dolar_obs": "observação sobre câmbio"\n  },\n  "win_direcional": {\n    "nivel_fech": "000.000",\n    "win_futuro": "000.000",\n    "suporte_critico": "000.000",\n    "obs_macro": "obs macro WIN",\n    "obs_commodities": "obs commodities WIN",\n    "orb_long": "000.000",\n    "orb_short": "000.000"\n  },\n  "wdo_direcional": {\n    "dolar_val": "0,00",\n    "range_op": "0,00–0,00",\n    "obs_tarifas": "obs sobre câmbio",\n    "obs_brent": "obs brent vs WDO",\n    "orb_compra": "0.000",\n    "orb_venda": "0.000"\n  },\n  "orb": {\n    "win_or_high": "000.000",\n    "win_or_low": "000.000",\n    "win_range": "0.000 pts",\n    "win_tipo": "AMPLO|MÉDIO|ESTREITO",\n    "win_compra_entrada": "000.000",\n    "win_compra_stop": "000.000",\n    "win_compra_alvo1": "000.000",\n    "win_compra_alvo2": "000.000",\n    "win_venda_entrada": "000.000",\n    "win_venda_stop": "000.000",\n    "win_venda_alvo1": "000.000",\n    "win_venda_alvo2": "000.000",\n    "wdo_or_high": "0.000",\n    "wdo_or_low": "0.000",\n    "wdo_range": "00 pips",\n    "wdo_tipo": "AMPLO|MÉDIO|ESTREITO",\n    "wdo_compra_entrada": "0.000",\n    "wdo_compra_stop": "0.000",\n    "wdo_compra_alvo1": "0.000",\n    "wdo_venda_entrada": "0.000",\n    "wdo_venda_stop": "0.000",\n    "wdo_venda_alvo1": "0.000",\n    "fakeout_risco": "descrição do risco de fakeout hoje"\n  },\n  "sr_win": {\n    "r3": "000.000", "r3_tipo": "tipo",\n    "r2": "000.000", "r2_tipo": "tipo",\n    "r1": "000.000", "r1_tipo": "tipo",\n    "vwap": "000.000",\n    "ob_bear": "000.000",\n    "s1": "000.000", "s1_tipo": "tipo",\n    "s2": "000.000", "s2_tipo": "tipo",\n    "s3": "000.000", "s3_tipo": "tipo",\n    "s4": "000.000", "s4_tipo": "tipo",\n    "ob_bull": "000.000",\n    "mm200": "000.000",\n    "mm50": "000.000",\n    "fib618": "000.000",\n    "fvg_zona": "000.000–000.000",\n    "liq_buyside": "000.000",\n    "liq_sellside": "000.000"\n  },\n  "sr_wdo": {\n    "r3": "0.000", "r3_tipo": "tipo",\n    "r2": "0.000", "r2_tipo": "tipo",\n    "r1": "0.000", "r1_tipo": "tipo",\n    "vwap": "0.000",\n    "ob_bear": "0.000",\n    "s1": "0.000", "s1_tipo": "tipo",\n    "s2": "0.000", "s2_tipo": "tipo",\n    "s3": "0.000", "s3_tipo": "tipo",\n    "ob_bull": "0.000",\n    "ptax": "0,00",\n    "fib50": "0.000",\n    "fvg_zona": "0.000–0.000"\n  },\n  "institucional": {\n    "win_buy_pct": 58,\n    "win_sell_pct": 42,\n    "win_bancos_ext": "COMPRADORES|VENDEDORES|NEUTROS",\n    "win_fundos": "COMPRADORES|VENDEDORES|NEUTROS",\n    "win_pf": "COMPRADORES|VENDEDORES|NEUTROS",\n    "win_hft": "tendência HFT",\n    "wdo_buy_pct": 44,\n    "wdo_sell_pct": 56,\n    "wdo_exportadores": "VENDENDO|COMPRANDO dólar",\n    "wdo_importadores": "VENDENDO|COMPRANDO dólar",\n    "wdo_bcb": "Sem leilão|Com leilão",\n    "wdo_bancos_ext": "tendência",\n    "sinal_compra_inst": "descrição sinal compra",\n    "sinal_venda_inst": "descrição sinal venda"\n  },\n  "correlacoes": {\n    "brent_win": "descrição correlação",\n    "minerio_win": "descrição",\n    "sp500_win": "descrição",\n    "dxy_win": "descrição",\n    "selic_win": "descrição",\n    "dxy_wdo": "descrição",\n    "brent_wdo": "descrição",\n    "selic_wdo": "descrição"\n  },\n  "mtc": {\n    "win_bias": "COMPRA|VENDA|NEUTRO|CAUTELA",\n    "wdo_bias": "COMPRA|VENDA|NEUTRO|CAUTELA",\n    "confluencia": "ALINHADOS|DIVERGENTES|PARCIAL",\n    "operar_win": "SIM|NÃO|AGUARDAR",\n    "operar_wdo": "SIM|NÃO|AGUARDAR",\n    "motivo_win": "motivo",\n    "motivo_wdo": "motivo",\n    "risco_dia": "principal risco do dia"\n  },\n  "riscos": {\n    "win_r1": "risco 1 WIN",\n    "win_r2": "risco 2 WIN",\n    "win_r3": "risco 3 WIN",\n    "wdo_r1": "risco 1 WDO",\n    "wdo_r2": "risco 2 WDO",\n    "wdo_r3": "risco 3 WDO",\n    "oport1": "oportunidade 1",\n    "oport2": "oportunidade 2",\n    "oport3": "oportunidade 3"\n  }\n}';
+
+let isUpdating = false;
+
+async function atualizarDashboard() {
+  if (isUpdating) return;
+  isUpdating = true;
+
+  const btn = document.getElementById('btnAtualizar');
+  const btnIcon = document.getElementById('btnIcon');
+  const btnText = document.getElementById('btnText');
+  const overlay = document.getElementById('loadingOverlay');
+
+  btn.disabled = true;
+  btnIcon.className = 'spin';
+  btnIcon.textContent = '⟳';
+  btnText.textContent = 'ATUALIZANDO...';
+  overlay.classList.add('active');
+
+  // Resetar steps
+  for (let i = 1; i <= 6; i++) {
+    const s = document.getElementById('step'+i);
+    s.classList.remove('active','done');
+  }
+
+  try {
+    // Animar steps sequencialmente enquanto espera
+    const stepTimer = animateSteps();
+
+    // Hora e data atuais
+    const now = new Date();
+    const hora = now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const data = now.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+    document.getElementById('loadingMsg').textContent = 'CONSULTANDO MERCADO · ' + hora;
+
+    const dadosUser = (document.getElementById('dadosMercado').value || '').trim().slice(0, 8000);
+    const prompt = SYSTEM_PROMPT_UPDATE + `
+
+Data/Hora atual: ${hora} de ${data}.
+
+DADOS DE MERCADO INFORMADOS PELO TRADER (única fonte de preços disponível):
+${dadosUser || '(nenhum dado informado)'}
+
+REGRAS DESTA ATUALIZAÇÃO:
+- Você NÃO tem acesso à internet. Use apenas os dados acima e conhecimento geral de metodologia.
+- Nunca invente cotações, variações, indicadores ou níveis. Campo de preço/nível sem base nos dados acima = "—".
+- Níveis de ORB, S/R, Order Blocks e FVG só podem ser calculados a partir dos preços informados (ex.: máxima/mínima da abertura). Sem esses preços, use "—".
+- Campos de texto (alertas, correlações, riscos, oportunidades) podem trazer orientação de método; quando não houver dado atual, diga isso no texto.
+- Em "fase", use o horário informado acima.
+RESPONDA APENAS O JSON, SEM MARKDOWN, SEM TEXTO FORA DO JSON.`;
+
+    const sample = await iaSample();
+    if (!sample) { clearInterval(stepTimer); throw { code: 'indisponivel' }; }
+    let dados;
+    try {
+      dados = await sample.json(prompt, { cache: false });
+    } finally {
+      clearInterval(stepTimer);
+    }
+    if (!dados || typeof dados !== 'object') throw { code: 'invalid_json' };
+
+    for (let i = 1; i <= 6; i++) {
+      const s = document.getElementById('step'+i);
+      s.classList.remove('active');
+      s.classList.add('done');
+    }
+    document.getElementById('loadingMsg').textContent = 'APLICANDO DADOS...';
+    aplicarDados(dados);
+
+    // Sucesso
+    overlay.classList.remove('active');
+    const agora = new Date();
+    const agoraStr = agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const agoraTs = agora.getTime();
+
+    // Registrar anterior → atual
+    const anteriorStr = document.getElementById('tAtual').textContent;
+    const anteriorTs  = window._lastUpdateTs || null;
+
+    document.getElementById('tAnterior').textContent = anteriorStr !== '—' ? anteriorStr : '—';
+    document.getElementById('tAtual').textContent    = agoraStr;
+    document.getElementById('badgeData').textContent = 'ATUALIZADO ' + agoraStr.substring(0,5);
+
+    // Calcular intervalo
+    if (anteriorTs) {
+      const diffMs  = agoraTs - anteriorTs;
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffSec = Math.floor((diffMs % 60000) / 1000);
+      const intervStr = diffMin > 0 ? diffMin + 'min ' + diffSec + 's' : diffSec + 's';
+      document.getElementById('tIntervalo').textContent = intervStr;
+    } else {
+      document.getElementById('tIntervalo').textContent = '—';
+    }
+
+    // Próxima atualização (39 min)
+    window._lastUpdateTs = agoraTs;
+    iniciarContagemProxima(agoraTs, 39);
+    atualizarFonteTimestamps(agoraStr.substring(0,5));
+    const elIA = document.getElementById('fonteAtualizacaoIA');
+    if (elIA) elIA.textContent = 'última busca: ' + agoraStr;
+
+    showToast('✅ Dashboard atualizado · ' + agoraStr, 'success');
+
+  } catch (err) {
+    console.error('Erro na atualização:', err);
+    overlay.classList.remove('active');
+    showToast('⚠️ ' + iaErroMsg(err), 'error');
+  } finally {
+    isUpdating = false;
+    btn.disabled = false;
+    btnIcon.className = '';
+    btnIcon.textContent = '⟳';
+    btnText.textContent = 'ATUALIZAR MERCADO';
+  }
+}
+
+function animateSteps() {
+  let current = 1;
+  const timer = setInterval(() => {
+    if (current <= 6) {
+      if (current > 1) {
+        document.getElementById('step'+(current-1)).classList.remove('active');
+        document.getElementById('step'+(current-1)).classList.add('done');
+      }
+      document.getElementById('step'+current).classList.add('active');
+      current++;
+    }
+  }, 900);
+  return timer;
+}
+
+function aplicarDados(d) {
+  try {
+    // TICKER
+    if (d.ticker) {
+      const t = d.ticker;
+      const items = document.querySelectorAll('.ticker-item');
+      const map = [
+        ['ibovespa', t.ibovespa],
+        ['win futuro', t.win],
+        ['wdo/usd', t.wdo],
+        ['brent', t.brent],
+        ['wti', t.wti],
+        ['selic', t.selic],
+        ['ipca 2026', t.ipca],
+        ['s&p 500', t.sp500],
+        ['dxy', t.dxy],
+        ['vwap win', t.vwap_win]
+      ];
+      items.forEach((item, i) => {
+        if (map[i] && map[i][1]) {
+          const data = map[i][1];
+          const val = item.querySelector('.ticker-val');
+          const chg = item.querySelector('.ticker-chg');
+          if (val) { val.textContent = data.val; val.className = 'ticker-val ' + (data.dir||'neutral'); }
+          if (chg) { chg.textContent = data.chg; chg.className = 'ticker-chg ' + (data.dir||'neutral'); }
+          item.classList.add('updated');
+          setTimeout(() => item.classList.remove('updated'), 2000);
+        }
+      });
+    }
+
+    // MACRO
+    if (d.macro) {
+      const m = d.macro;
+      setTextSafe('macroAlerta1', m.alerta1);
+      setTextSafe('macroAlerta2', m.alerta2);
+      setTextSafe('macroAlerta3', m.alerta3);
+      setTextSafe('macroIPCA', m.ipca_val);
+      setTextSafe('macroSelic', m.selic_val);
+      setTextSafe('macroCopom', m.copom_data);
+      setTextSafe('macroPIB', m.pib);
+      setTextSafe('macroUSD', m.usd_brl);
+      setTextSafe('macroIbovFech', m.ibov_fech);
+      setTextSafe('macroBrent', m.brent_val);
+      setTextSafe('macroWTI', m.wti_val);
+      setTextSafe('macroBrentSinal', m.brent_sinal);
+      setTextSafe('macroBrentDriver', m.brent_driver);
+      setTextSafe('macroDXY', m.dxy_val);
+      setTextSafe('macroDolarObs', m.dolar_obs);
+    }
+
+    // S/R WIN
+    if (d.sr_win) {
+      const s = d.sr_win;
+      setTextSafe('srWinR3', s.r3); setTextSafe('srWinR3T', s.r3_tipo);
+      setTextSafe('srWinR2', s.r2); setTextSafe('srWinR2T', s.r2_tipo);
+      setTextSafe('srWinR1', s.r1); setTextSafe('srWinR1T', s.r1_tipo);
+      setTextSafe('srWinVWAP', s.vwap);
+      setTextSafe('srWinOBBear', s.ob_bear);
+      setTextSafe('srWinS1', s.s1); setTextSafe('srWinS1T', s.s1_tipo);
+      setTextSafe('srWinS2', s.s2); setTextSafe('srWinS2T', s.s2_tipo);
+      setTextSafe('srWinS3', s.s3); setTextSafe('srWinS3T', s.s3_tipo);
+      setTextSafe('srWinS4', s.s4); setTextSafe('srWinS4T', s.s4_tipo);
+      setTextSafe('srWinOBBull', s.ob_bull);
+      setTextSafe('srWinMM200', s.mm200);
+      setTextSafe('srWinMM50', s.mm50);
+      setTextSafe('srWinFib', s.fib618);
+      setTextSafe('srWinFVG', s.fvg_zona);
+      setTextSafe('srWinLiqBuy', s.liq_buyside);
+      setTextSafe('srWinLiqSell', s.liq_sellside);
+    }
+
+    // S/R WDO
+    if (d.sr_wdo) {
+      const s = d.sr_wdo;
+      setTextSafe('srWdoR3', s.r3); setTextSafe('srWdoR3T', s.r3_tipo);
+      setTextSafe('srWdoR2', s.r2); setTextSafe('srWdoR2T', s.r2_tipo);
+      setTextSafe('srWdoR1', s.r1); setTextSafe('srWdoR1T', s.r1_tipo);
+      setTextSafe('srWdoVWAP', s.vwap);
+      setTextSafe('srWdoOBBear', s.ob_bear);
+      setTextSafe('srWdoS1', s.s1); setTextSafe('srWdoS1T', s.s1_tipo);
+      setTextSafe('srWdoS2', s.s2); setTextSafe('srWdoS2T', s.s2_tipo);
+      setTextSafe('srWdoS3', s.s3); setTextSafe('srWdoS3T', s.s3_tipo);
+      setTextSafe('srWdoOBBull', s.ob_bull);
+      setTextSafe('srWdoPTAX', s.ptax);
+      setTextSafe('srWdoFib', s.fib50);
+      setTextSafe('srWdoFVG', s.fvg_zona);
+    }
+
+    // ORB
+    if (d.orb) {
+      const o = d.orb;
+      setTextSafe('orbWinHigh', o.win_or_high);
+      setTextSafe('orbWinLow', o.win_or_low);
+      setTextSafe('orbWinRange', o.win_range);
+      setTextSafe('orbWinTipo', o.win_tipo);
+      setTextSafe('orbWinCE', o.win_compra_entrada);
+      setTextSafe('orbWinCS', o.win_compra_stop);
+      setTextSafe('orbWinCA1', o.win_compra_alvo1);
+      setTextSafe('orbWinCA2', o.win_compra_alvo2);
+      setTextSafe('orbWinVE', o.win_venda_entrada);
+      setTextSafe('orbWinVS', o.win_venda_stop);
+      setTextSafe('orbWinVA1', o.win_venda_alvo1);
+      setTextSafe('orbWdoHigh', o.wdo_or_high);
+      setTextSafe('orbWdoLow', o.wdo_or_low);
+      setTextSafe('orbWdoRange', o.wdo_range);
+      setTextSafe('orbWdoCE', o.wdo_compra_entrada);
+      setTextSafe('orbWdoCS', o.wdo_compra_stop);
+      setTextSafe('orbWdoCA1', o.wdo_compra_alvo1);
+      setTextSafe('orbWdoVE', o.wdo_venda_entrada);
+      setTextSafe('orbWdoVS', o.wdo_venda_stop);
+      setTextSafe('orbWdoVA1', o.wdo_venda_alvo1);
+      setTextSafe('orbFakeout', o.fakeout_risco);
+    }
+
+    // INSTITUCIONAL
+    if (d.institucional) {
+      const inst = d.institucional;
+      const buyBar = document.querySelector('.inst-buy');
+      const sellBar = document.querySelector('.inst-sell');
+      if (buyBar) buyBar.style.width = inst.win_buy_pct + '%';
+      if (sellBar) sellBar.style.width = inst.win_sell_pct + '%';
+      const labels = document.querySelectorAll('.inst-labels');
+      if (labels[0]) labels[0].innerHTML = `<span class="up">▲ COMPRA ${inst.win_buy_pct}%</span><span class="down">▼ VENDA ${inst.win_sell_pct}%</span>`;
+      if (labels[1]) labels[1].innerHTML = `<span class="up">▲ COMPRA ${inst.wdo_buy_pct}%</span><span class="down">▼ VENDA ${inst.wdo_sell_pct}%</span>`;
+      setTextSafe('instWinExt', inst.win_bancos_ext);
+      setTextSafe('instWinFundos', inst.win_fundos);
+      setTextSafe('instWinPF', inst.win_pf);
+      setTextSafe('instWinHFT', inst.win_hft);
+      setTextSafe('instWdoExport', inst.wdo_exportadores);
+      setTextSafe('instWdoImport', inst.wdo_importadores);
+      setTextSafe('instWdoBCB', inst.wdo_bcb);
+      setTextSafe('instWdoExt', inst.wdo_bancos_ext);
+      setTextSafe('instSinalCompra', inst.sinal_compra_inst);
+      setTextSafe('instSinalVenda', inst.sinal_venda_inst);
+    }
+
+    // MTC / VIÉS
+    if (d.mtc) {
+      const mtc = d.mtc;
+      // Atualizar signal boxes
+      const signalBoxes = document.querySelectorAll('.signal-box .signal-label');
+      if (signalBoxes[0]) {
+        const sb = signalBoxes[0].closest('.signal-box');
+        sb.className = 'signal-box signal-' + (mtc.confluencia==='ALINHADOS'?'buy':mtc.confluencia==='DIVERGENTES'?'sell':'neutral');
+        signalBoxes[0].textContent = mtc.confluencia || 'ATENÇÃO';
+      }
+      setTextSafe('mtcOperarWIN', mtc.operar_win + ' — ' + (mtc.motivo_win||''));
+      setTextSafe('mtcOperarWDO', mtc.operar_wdo + ' — ' + (mtc.motivo_wdo||''));
+      setTextSafe('mtcRisco', mtc.risco_dia);
+    }
+
+    // RISCOS
+    if (d.riscos) {
+      const r = d.riscos;
+      setTextSafe('riscoWin1', r.win_r1);
+      setTextSafe('riscoWin2', r.win_r2);
+      setTextSafe('riscoWin3', r.win_r3);
+      setTextSafe('riscoWdo1', r.wdo_r1);
+      setTextSafe('riscoWdo2', r.wdo_r2);
+      setTextSafe('riscoWdo3', r.wdo_r3);
+      setTextSafe('riscoOport1', r.oport1);
+      setTextSafe('riscoOport2', r.oport2);
+      setTextSafe('riscoOport3', r.oport3);
+    }
+
+  } catch(e) {
+    console.warn('Erro ao aplicar dados:', e);
+  }
+}
+
+function setTextSafe(id, val) {
+  const el = document.getElementById(id);
+  if (el && val !== undefined && val !== null) {
+    el.textContent = val;
+    el.classList.add('updated');
+    setTimeout(() => el.classList.remove('updated'), 2000);
+  }
+}
+
+function iniciarContagemProxima(fromTs, minutosIntervalo) {
+  // Limpar timer anterior
+  if (window._proximaTimer) clearInterval(window._proximaTimer);
+
+  const el = document.getElementById('tProxima');
+  if (!el) return;
+
+  function atualizar() {
+    const agora = Date.now();
+    const proximaTs = fromTs + minutosIntervalo * 60 * 1000;
+    const restante = proximaTs - agora;
+
+    if (restante <= 0) {
+      el.textContent = 'AGORA';
+      el.classList.add('ticking');
+      clearInterval(window._proximaTimer);
+      return;
+    }
+
+    const min = Math.floor(restante / 60000);
+    const sec = Math.floor((restante % 60000) / 1000);
+    el.textContent = min + 'min ' + String(sec).padStart(2,'0') + 's';
+    el.classList.remove('ticking');
+  }
+
+  atualizar();
+  window._proximaTimer = setInterval(atualizar, 1000);
+}
+
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + type + ' show';
+  setTimeout(() => { toast.className = 'toast'; }, 4000);
+}
+
+// INIT
+calcGarantia();
+
+// ─── GRÁFICO ANOTADO PELA IA ───
+const ANOT_CORES = {
+  compra: '#00ff88', venda: '#ff3860', neutro: '#ffb800',
+  FVG: '#a855f7', ORB: '#00d4ff', LIQUIDEZ: '#ffb800',
+  entrada: '#00d4ff', stop: '#ff3860', alvo: '#00ff88',
+  suporte: '#00ff88', resistencia: '#ff3860', vwap: '#ffb800',
+  orb_max: '#00d4ff', orb_min: '#00d4ff'
+};
+
+function anotNum(v) {
+  if (typeof v === 'number') return isFinite(v) ? v : null;
+  if (typeof v !== 'string') return null;
+  let s = v.replace(/[^\d.,-]/g, '');
+  if (!s) return null;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+  const n = parseFloat(s);
+  return isFinite(n) ? n : null;
+}
+
+function anotFmt(n) {
+  if (n == null) return '—';
+  const dec = Math.abs(n) < 100 ? 2 : (Number.isInteger(n) ? 0 : 1);
+  return n.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+}
+
+function anotCarregarImagem(file) {
+  return new Promise((ok, falha) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => ok({ img, url });
+    img.onerror = () => { URL.revokeObjectURL(url); falha({ code: 'image_rejected' }); };
+    img.src = url;
+  });
+}
+
+function anotEtiqueta(g, texto, xDir, y, cor, fs, H) {
+  g.font = '600 ' + fs + 'px "Share Tech Mono", monospace';
+  const pad = fs * 0.35, w = g.measureText(texto).width + pad * 2, h = fs * 1.35;
+  const yy = Math.min(Math.max(y - h / 2, 2), H - h - 2);
+  g.fillStyle = 'rgba(2,4,8,0.82)';
+  g.fillRect(xDir - w, yy, w, h);
+  g.strokeStyle = cor; g.lineWidth = Math.max(1, fs / 12);
+  g.strokeRect(xDir - w, yy, w, h);
+  g.fillStyle = cor; g.textBaseline = 'middle'; g.textAlign = 'left';
+  g.fillText(texto, xDir - w + pad, yy + h / 2);
+  return yy + h;
+}
+
+async function gerarGraficoAnotado(sample, ctx) {
+  const box = document.getElementById('chartAnot');
+  const status = document.getElementById('chartAnotStatus');
+  const imgOut = document.getElementById('chartAnotImg');
+  const legenda = document.getElementById('chartLegenda');
+  const btn = document.getElementById('btnBaixarAnot');
+  const arquivo = chartFile;
+  box.hidden = false; imgOut.hidden = true; btn.hidden = true; legenda.textContent = '';
+  status.style.color = '';
+  status.textContent = 'Desenhando as marcações no seu gráfico...';
+
+  const prompt = 'Você é o IA TRADER PRO (método MTC + ICT Smart Money + ORB, WIN/WDO na B3). '
+    + 'A imagem anexada é o print de um gráfico. Devolva APENAS um JSON com as marcações de operação que serão desenhadas sobre a própria imagem.\n\n'
+    + 'CALIBRAÇÃO DO EIXO (essencial): escolha duas etiquetas de preço legíveis no eixo vertical, uma perto do topo e outra perto da base. '
+    + 'Para cada uma informe o valor e a posição vertical do centro da etiqueta como fração da altura da imagem (0 = topo da imagem, 1 = base). '
+    + 'Informe também x_eixo: fração da largura onde começa a coluna do eixo de preços (1 se não houver eixo à direita).\n\n'
+    + 'Formato:\n'
+    + '{"ativo":"WIN","timeframe":"5m","vies":"COMPRA|VENDA|NEUTRO",'
+    + '"eixo":{"preco_topo":174000,"y_topo":0.08,"preco_base":172500,"y_base":0.86,"x_eixo":0.93},'
+    + '"zonas":[{"tipo":"FVG|OB|ORB|LIQUIDEZ|SR","lado":"compra|venda|neutro","rotulo":"FVG de alta","preco_de":172800,"preco_ate":173050,"x_de":0.55}],'
+    + '"linhas":[{"tipo":"entrada|stop|alvo|suporte|resistencia|vwap|orb_max|orb_min","rotulo":"Entrada compra","preco":173100}],'
+    + '"resumo":"uma frase com o plano"}\n\n'
+    + 'Regras: preços como números puros no padrão do eixo (173550 ou 5162.5), sem separador de milhar. '
+    + 'x_de (opcional) é a fração da largura onde a zona nasce (candle de origem). Até 6 zonas e 8 linhas. '
+    + 'Marque só o que for visível ou derivado do gráfico (FVG, Order Blocks, range de abertura/ORB, liquidez, S/R, VWAP). '
+    + 'Se houver setup válido, inclua entrada, stop e alvo(s) dele; se não houver, não inclua entrada/stop/alvo e diga no resumo.'
+    + (ctx ? '\n\nDados de mercado informados pelo trader:\n' + ctx : '');
+
+  let d;
+  try {
+    d = await sample.json(prompt, { images: [arquivo], cache: false });
+  } catch (e) {
+    status.textContent = '❌ Não foi possível gerar o gráfico anotado. ' + iaErroMsg(e);
+    status.style.color = 'var(--danger)';
+    return;
+  }
+  if (arquivo !== chartFile) return; // print trocado no meio do caminho
+
+  const ex = (d && d.eixo) || {};
+  const pT = anotNum(ex.preco_topo), pB = anotNum(ex.preco_base);
+  const yT = Number(ex.y_topo), yB = Number(ex.y_base);
+  if (pT == null || pB == null || pT === pB || !isFinite(yT) || !isFinite(yB) || Math.abs(yB - yT) < 0.05) {
+    status.textContent = '❌ A IA não conseguiu ler o eixo de preços deste print. Envie um print com a escala de preços visível à direita.';
+    status.style.color = 'var(--danger)';
+    return;
+  }
+  const yDe = preco => yT + (preco - pT) * (yB - yT) / (pB - pT);
+
+  let carregada;
+  try { carregada = await anotCarregarImagem(arquivo); }
+  catch (e) { status.textContent = '❌ ' + iaErroMsg(e); status.style.color = 'var(--danger)'; return; }
+  const { img, url } = carregada;
+  const esc = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
+  const W = Math.round(img.naturalWidth * esc), Hc = Math.round(img.naturalHeight * esc);
+  const topo = Math.round(Math.max(28, W / 32));
+  const H = Hc + topo;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#020408'; g.fillRect(0, 0, W, H);
+  g.drawImage(img, 0, topo, W, Hc);
+  URL.revokeObjectURL(url);
+
+  const fs = Math.max(11, Math.round(W / 85));
+  const xEixo = Math.min(1, Math.max(0.5, Number(ex.x_eixo) || 0.93)) * W;
+  const Y = preco => topo + yDe(preco) * Hc;
+  const visivel = y => y >= topo - 2 && y <= H + 2;
+  const itensLeg = [];
+  const fora = [];
+
+  // zonas
+  (Array.isArray(d.zonas) ? d.zonas : []).slice(0, 6).forEach(z => {
+    const a = anotNum(z.preco_de), b = anotNum(z.preco_ate);
+    if (a == null || b == null) return;
+    const tipo = String(z.tipo || '').toUpperCase();
+    const cor = ANOT_CORES[tipo] || ANOT_CORES[String(z.lado || '').toLowerCase()] || ANOT_CORES.neutro;
+    const rot = String(z.rotulo || tipo || 'Zona').slice(0, 40);
+    const y1 = Y(Math.max(a, b)), y2 = Y(Math.min(a, b));
+    itensLeg.push({ cor, txt: rot + '  ' + anotFmt(Math.min(a, b)) + ' – ' + anotFmt(Math.max(a, b)) });
+    if (!visivel(y1) && !visivel(y2)) { fora.push(rot); return; }
+    const xIni = Math.min(Math.max(Number(z.x_de) || 0, 0), 0.95) * W;
+    const yy1 = Math.max(y1, topo), yy2 = Math.min(Math.max(y2, yy1 + 2), H);
+    g.globalAlpha = 0.2; g.fillStyle = cor; g.fillRect(xIni, yy1, xEixo - xIni, yy2 - yy1);
+    g.globalAlpha = 0.9; g.strokeStyle = cor; g.lineWidth = Math.max(1, fs / 8);
+    g.setLineDash(tipo === 'LIQUIDEZ' ? [fs / 2, fs / 3] : []);
+    g.strokeRect(xIni, yy1, xEixo - xIni, yy2 - yy1);
+    g.setLineDash([]); g.globalAlpha = 1;
+    g.font = '700 ' + fs + 'px "Share Tech Mono", monospace';
+    g.fillStyle = cor; g.textBaseline = 'top'; g.textAlign = 'left';
+    g.fillText(rot, xIni + fs * 0.4, yy1 + fs * 0.25);
+  });
+
+  // linhas
+  const linhas = (Array.isArray(d.linhas) ? d.linhas : []).slice(0, 8)
+    .map(l => ({ ...l, p: anotNum(l.preco), tipo: String(l.tipo || '').toLowerCase() }))
+    .filter(l => l.p != null)
+    .sort((a, b) => b.p - a.p);
+  let ultimoFim = -Infinity;
+  linhas.forEach(l => {
+    const cor = ANOT_CORES[l.tipo] || ANOT_CORES.neutro;
+    const rot = String(l.rotulo || l.tipo || 'Nível').slice(0, 32);
+    itensLeg.push({ cor, txt: rot + '  ' + anotFmt(l.p) });
+    const y = Y(l.p);
+    if (!visivel(y)) { fora.push(rot); return; }
+    g.strokeStyle = cor; g.lineWidth = Math.max(1.5, fs / (l.tipo === 'entrada' ? 5 : 7));
+    g.setLineDash(['stop', 'alvo', 'vwap'].includes(l.tipo) ? [fs * 0.7, fs * 0.4] : []);
+    g.beginPath(); g.moveTo(0, y); g.lineTo(xEixo, y); g.stroke(); g.setLineDash([]);
+    const yEtiq = Math.max(y, ultimoFim + fs * 0.75);
+    ultimoFim = anotEtiqueta(g, rot + ' ' + anotFmt(l.p), xEixo - fs * 0.3, yEtiq, cor, fs, H);
+  });
+
+  // seta da entrada ao primeiro alvo
+  const ent = linhas.find(l => l.tipo === 'entrada');
+  if (ent) {
+    const alvos = linhas.filter(l => l.tipo === 'alvo');
+    const alvo = alvos.sort((a, b) => Math.abs(a.p - ent.p) - Math.abs(b.p - ent.p))[0];
+    if (alvo) {
+      const x = xEixo * 0.82, y0 = Y(ent.p), y1 = Y(alvo.p);
+      if (visivel(y0) && visivel(y1) && Math.abs(y1 - y0) > fs) {
+        const cor = alvo.p > ent.p ? ANOT_CORES.compra : ANOT_CORES.venda;
+        const s = Math.sign(y1 - y0), ponta = fs * 0.9;
+        g.strokeStyle = cor; g.fillStyle = cor; g.lineWidth = Math.max(2, fs / 4);
+        g.beginPath(); g.moveTo(x, y0); g.lineTo(x, y1 - s * ponta); g.stroke();
+        g.beginPath(); g.moveTo(x, y1); g.lineTo(x - ponta * 0.7, y1 - s * ponta); g.lineTo(x + ponta * 0.7, y1 - s * ponta); g.closePath(); g.fill();
+      }
+    }
+  }
+
+  // faixa de título
+  const vies = String(d.vies || 'NEUTRO').toUpperCase();
+  const corVies = vies.includes('COMPRA') ? ANOT_CORES.compra : vies.includes('VENDA') ? ANOT_CORES.venda : ANOT_CORES.neutro;
+  g.fillStyle = '#060d14'; g.fillRect(0, 0, W, topo);
+  g.font = '700 ' + Math.round(topo * 0.5) + 'px "Share Tech Mono", monospace';
+  g.textBaseline = 'middle'; g.textAlign = 'left'; g.fillStyle = '#00d4ff';
+  const cab = 'IA TRADER · ' + String(d.ativo || '').slice(0, 12) + ' ' + String(d.timeframe || '').slice(0, 8) + ' · ';
+  g.fillText(cab, topo * 0.3, topo / 2);
+  g.fillStyle = corVies;
+  g.fillText('VIÉS ' + vies.slice(0, 10), topo * 0.3 + g.measureText(cab).width, topo / 2);
+  g.textAlign = 'right'; g.fillStyle = '#4a6a80';
+  g.font = Math.round(topo * 0.38) + 'px "Share Tech Mono", monospace';
+  g.fillText(new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' · níveis aproximados', W - topo * 0.3, topo / 2);
+
+  if (!itensLeg.length) {
+    status.textContent = 'A IA não encontrou zonas ou níveis para marcar neste print.' + (d.resumo ? ' ' + String(d.resumo) : '');
+    return;
+  }
+
+  imgOut.src = cv.toDataURL('image/png');
+  imgOut.hidden = false;
+  status.textContent = (d.resumo ? String(d.resumo) : 'Marcações desenhadas.')
+    + (fora.length ? ' Fora da área visível do print: ' + fora.join(', ') + '.' : '');
+  itensLeg.forEach(it => {
+    const li = document.createElement('li');
+    const c = document.createElement('span'); c.className = 'cor'; c.style.background = it.cor;
+    const t = document.createElement('span'); t.textContent = it.txt;
+    li.append(c, t); legenda.append(li);
+  });
+
+  const downloads = (window.claude && typeof window.claude.use === 'function')
+    ? await window.claude.use('downloads').catch(() => null) : null;
+  if (downloads) {
+    btn.hidden = false;
+    btn.onclick = () => cv.toBlob(async blob => {
+      if (!blob) return;
+      try {
+        await downloads.save({ filename: 'ia-trader-grafico-anotado.png', data: blob });
+        showToast('✅ Imagem salva', 'success');
+      } catch (e) {
+        if (e && e.code === 'declined') return;
+        if (e && (e.code === 'unavailable' || e.code === 'not_granted')) btn.hidden = true;
+        showToast('Não foi possível salvar a imagem agora.', 'error');
+      }
+    }, 'image/png');
+  }
+}
+
+// ─── ANÁLISE DE GRÁFICO ───
+let chartImageBase64 = null;
+let chartFile = null;
+
+function onChartSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  chartFile = file;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    chartImageBase64 = dataUrl.split(',')[1];
+
+    const preview = document.getElementById('chartPreview');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+
+    document.getElementById('chartUploadBox').style.display = 'none';
+    document.getElementById('chartControls').style.display = 'flex';
+    document.getElementById('btnAnalisarChart').style.display = 'block';
+
+    const analysis = document.getElementById('chartAnalysis');
+    analysis.style.display = 'none';
+    analysis.textContent = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function limparGrafico() {
+  chartImageBase64 = null;
+  chartFile = null;
+  document.getElementById('chartAnot').hidden = true;
+  document.getElementById('chartPreview').style.display = 'none';
+  document.getElementById('chartPreview').src = '';
+  document.getElementById('chartUploadBox').style.display = 'block';
+  document.getElementById('chartControls').style.display = 'none';
+  document.getElementById('chartAnalysis').style.display = 'none';
+  document.getElementById('chartFileInput').value = '';
+}
+
+async function analisarGrafico() {
+  if (!chartImageBase64) { showToast('Nenhum gráfico carregado.', 'warn'); return; }
+
+  const btn = document.getElementById('btnAnalisarChart');
+  const analysis = document.getElementById('chartAnalysis');
+
+  btn.disabled = true;
+  btn.textContent = '🔮 ANALISANDO...';
+  analysis.style.display = 'block';
+  analysis.className = 'chart-analysis-box loading';
+  analysis.style.color = '';
+  analysis.textContent = 'IA TRADER · Processando gráfico via Claude Vision...';
+
+  const systemChart = 'Você é o IA TRADER PRO — analista gráfico especializado em WIN e WDO na B3. Método: MTC + ICT + ORB. Método: Trader Camaleão (MTC) + ICT Smart Money + ORB. Analise o gráfico enviado e forneça: 1) ATIVO E TIMEFRAME identificado; 2) ESTRUTURA DE MERCADO (tendência, BOS, CHoCH); 3) SUPORTES E RESISTÊNCIAS visíveis com valores; 4) ICT: Order Blocks, FVGs, Liquidity Zones identificadas; 5) MÉDIAS MÓVEIS: posição do price; 6) VWAP se visível; 7) ORB se identificável; 8) VIÉS: COMPRA / VENDA / NEUTRO com justificativa; 9) SETUP RECOMENDADO: entrada, stop e alvo se houver oportunidade; 10) O QUE AGUARDAR antes de entrar. Seja objetivo e direto. Use emojis para organizar.';
+
+  try {
+    const sample = await iaSample();
+    if (!sample) throw { code: 'indisponivel' };
+    const ctx = (document.getElementById('dadosMercado').value || '').trim().slice(0, 4000);
+    const prompt = systemChart + '\n\nA imagem anexada é o print de um gráfico enviado pelo trader. Analise este gráfico de trading completo usando o Método Trader Camaleão + ICT Smart Money. Identifique o ativo, timeframe, estrutura, S/R, setup e viés operacional. Responda em português, em texto simples (sem tabelas markdown). Leia os preços do eixo com cuidado e avise quando um nível for aproximado.'
+      + (ctx ? '\n\nDados de mercado informados pelo trader:\n' + ctx : '');
+    analysis.textContent = 'IA TRADER · Pensando...';
+    gerarGraficoAnotado(sample, ctx);
+    await sample(prompt, {
+      images: [chartFile],
+      cache: false,
+      onText: ({ text }) => { analysis.className = 'chart-analysis-box'; analysis.textContent = text; }
+    });
+    analysis.className = 'chart-analysis-box';
+    showToast('✅ Análise gráfica concluída!', 'success');
+
+  } catch(e) {
+    analysis.className = 'chart-analysis-box';
+    analysis.textContent = (e && e.text ? e.text + '\n\n' : '') + '❌ ' + iaErroMsg(e);
+    analysis.style.color = 'var(--danger)';
+    showToast('Erro na análise do gráfico.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔮 ANALISAR COM IA TRADER';
+  }
+}
+
+// ─── ATUALIZAR TIMESTAMPS NAS FONTES ───
+function atualizarFonteTimestamps(hora) {
+  const ids = ['fonteUpdateMacro','fonteUpdateBrasil','fonteUpdateComm',
+               'fonteUpdateCambio','fonteUpdateMTC','fonteUpdateORB',
+               'fonteUpdateSR','fonteUpdateInst'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = 'atualizado ' + hora; }
+  });
+}
+
+// Fase ativa pelo horário atual
+(function() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const min = h * 60 + m;
+  const fases = document.querySelectorAll('.fase-item');
+  fases.forEach(f => { f.classList.remove('active-fase'); f.classList.remove('done'); });
+  if (min < 525) { /* antes */ }
+  else if (min < 540) { fases[0].classList.add('active-fase'); }
+  else if (min < 570) { fases[0].classList.add('done'); fases[1].classList.add('active-fase'); }
+  else if (min < 660) { fases[0].classList.add('done'); fases[1].classList.add('done'); fases[2].classList.add('active-fase'); }
+  else if (min < 780) { [0,1,2].forEach(i=>fases[i].classList.add('done')); fases[3].classList.add('active-fase'); }
+  else if (min < 900) { [0,1,2,3].forEach(i=>fases[i].classList.add('done')); fases[4].classList.add('active-fase'); }
+  else if (min < 1050) { [0,1,2,3,4].forEach(i=>fases[i].classList.add('done')); fases[5].classList.add('active-fase'); }
+  else { [0,1,2,3,4,5].forEach(i=>fases[i].classList.add('done')); fases[6].classList.add('active-fase'); }
+})();
+</script>
